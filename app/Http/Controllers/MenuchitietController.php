@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Menu;
+use Illuminate\Http\Request;
+
+class MenuchitietController extends Controller
+{
+    public function index(Request $request)
+    {
+        // Lấy TẤT CẢ danh mục truyền ra view để làm menu nút bấm
+        $categories = \App\Models\Category::all();
+
+        // Lọc món ăn theo danh mục nếu khách bấm vào nút, và CHỈ LẤY MÓN ĐANG BÁN (status = 1)
+        if ($request->has('category_id')) {
+            $menus = \App\Models\Menu::with('category_relation')
+                        ->where('category_id', $request->category_id)
+                        ->where('status', 1) 
+                        ->get();
+        } else {
+            $menus = \App\Models\Menu::with('category_relation')
+                        ->where('status', 1)
+                        ->get();
+        }
+
+        // Truyền cả $menus và $categories ra View
+        return view('menu', compact('menus', 'categories'));
+    }
+
+    public function special()
+    {
+         $menus = Menu::where('category', 'special')->where('status', 1)->get();
+        return view('special', compact('menus'));
+    }
+
+    public function salad()
+    {
+        $menus = Menu::where('category', 'salad')->where('status', 1)->get();
+        return view('salad', compact('menus'));
+    }
+
+    public function desserts()
+    {
+        // Nếu trong DB category là 'dessert'
+        // Thay get() bằng paginate(số_món_1_trang)
+        $menus = Menu::where('category', 'dessert')->where('status', 1)->get();
+        return view('desserts', compact('menus'));
+    }
+
+    public function drinks()
+    {
+        $menus = Menu::where('category', 'drink')->where('status', 1)->get();
+        return view('drinks', compact('menus'));
+    }
+
+    public function seafood()
+    {
+        $menus = Menu::where('category', 'seafood')->where('status', 1)->get();
+        return view('seafood', compact('menus'));
+    }
+
+    public function vietnamese()
+    {
+        $menus = Menu::where('category', 'vietnamese')->where('status', 1)->get();
+        return view('vietnamese', compact('menus'));
+    }
+
+    public function showDetail($id)
+    {
+        // Thêm where('status', 1) để nếu món đã ngừng bán, sẽ trả về lỗi 404 (Không tìm thấy)
+        $menu = Menu::with(['comments.user'])
+                    ->where('status', 1)
+                    ->findOrFail($id);
+                    
+        return view('detail', compact('menu'));
+    }
+}
