@@ -173,6 +173,7 @@ class ChatbotController extends Controller
     }
 
     // 🔥 HÀM QUAN TRỌNG CHO CHATBOX
+    // 🔥 HÀM QUAN TRỌNG CHO CHATBOX ĐÃ ĐƯỢC CẬP NHẬT ĐỂ ĐỌC DATABASE
     public function ask(Request $request)
     {
         $message = trim((string) $request->input('message'));
@@ -192,11 +193,32 @@ class ChatbotController extends Controller
             ]);
         }
 
+        // 1. Lấy dữ liệu thực đơn từ bảng 'menus' (chỉ lấy món đang mở bán: status = 1)
+        $menus = \Illuminate\Support\Facades\DB::table('menus')
+            ->where('status', 1)
+            ->get(['name', 'price', 'description']);
+
+        // 2. Chuyển đổi dữ liệu thành chuỗi văn bản cho AI đọc
+        $menuContext = "DANH SÁCH THỰC ĐƠN CỦA NHÀ HÀNG (Giá VNĐ):\n";
+        foreach ($menus as $item) {
+            $priceFormatted = number_format($item->price, 0, ',', '.');
+            $desc = $item->description ? " - " . $item->description : "";
+            $menuContext .= "- Món {$item->name}: {$priceFormatted}đ{$desc}\n";
+        }
+
+        // 3. Tạo System Prompt ép AI phải đọc menu
+        $systemPrompt = "Bạn là trợ lý AI lễ tân của nhà hàng cao cấp Aurora Garden. "
+            . "Hãy trả lời bằng tiếng Việt, lịch sự, thân thiện và đúng trọng tâm. "
+            . "BẮT BUỘC phải dựa vào danh sách thực đơn dưới đây để tư vấn cho khách. "
+            . "TUYỆT ĐỐI KHÔNG TỰ BỊA RA MÓN ĂN NGOÀI DANH SÁCH NÀY. Nếu khách hỏi món không có, hãy xin lỗi và gợi ý món khác trong thực đơn.\n\n"
+            . $menuContext;
+
+        // 4. Gửi lên Gemini
         $result = $this->generateContent($apiKey, [
             'systemInstruction' => [
                 'parts' => [
                     [
-                        'text' => 'Bạn là trợ lý AI của nhà hàng. Hãy trả lời bằng tiếng Việt, ngắn gọn, đúng trọng tâm. Ưu tiên hỗ trợ khách về thực đơn, đặt bàn, giờ mở cửa và liên hệ.',
+                        'text' => $systemPrompt,
                     ],
                 ],
             ],
