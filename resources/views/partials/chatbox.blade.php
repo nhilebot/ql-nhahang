@@ -142,7 +142,7 @@
     const msgs     = document.getElementById('cb-messages');
     const input    = document.getElementById('cb-input');
     const sendBtn  = document.getElementById('cb-send');
-    const ENDPOINT = '{{ route("chatbot.ask") }}';
+    const ENDPOINT = '{{ route("chatbot.ask", [], false) }}';
     const CSRF     = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
     let history = [];   // [{role:'user'|'model', text:'...'}]
@@ -215,10 +215,21 @@
                 },
                 body: JSON.stringify({ message: text, history: history.slice(-10) }),
             });
-            const data = await res.json();
+
+            const raw = await res.text();
+            let data = {};
+
+            try {
+                data = raw ? JSON.parse(raw) : {};
+            } catch (parseErr) {
+                data = {
+                    error: 'Máy chủ trả về dữ liệu không hợp lệ. Vui lòng thử lại sau.'
+                };
+            }
+
             typing.remove();
 
-            const reply = data.reply || data.error || 'Có lỗi xảy ra, vui lòng thử lại.';
+            const reply = data.reply || data.error?.message || data.error || 'Có lỗi xảy ra, vui lòng thử lại.';
             addMsg('bot', reply);
             history.push({ role: 'model', text: reply });
 
