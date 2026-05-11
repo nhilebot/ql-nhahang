@@ -37,4 +37,18 @@
         </tbody>
     </table>
 </div>
+
+<script>
+// Nghe lắng cập nhật đơn hàng từ khách hàng
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof Echo !== 'undefined') {
+        Echo.channel('admin-orders-updates')
+            .listen('.order.status.updated', (data) => {
+                console.log('Đơn hàng cập nhật:', data);
+                // Reload trang hoặc cập nhật UI
+                window.location.reload();
+            });
+    }
+});
+</script>
 @endsection

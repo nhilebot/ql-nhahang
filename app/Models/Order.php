@@ -9,12 +9,15 @@ class Order extends Model
 {
     use HasFactory;
 
-protected $fillable = ['user_id', 'total_price', 'status', 'table_number', 'name', 
-'phone', 'address', 'payment_method','notes', 'menu_id', 'code'];
+protected $fillable = [
+    'code', 'user_id', 'table_number', 'total_price', 
+    'status', 'payment_method', 'name', 'phone', 'notes'
+];
 protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
+    'total_price' => 'decimal:2',
+    'created_at' => 'datetime',
+    'updated_at' => 'datetime',
+];
 
     public function user()
     {
@@ -37,10 +40,11 @@ public function table() {
 // Giúp Blade hiển thị màu sắc dựa trên trạng thái
 public function getStatusColorAttribute() {
     return match($this->status) {
-        'pending' => 'secondary',
-        'processing' => 'warning',
-        'ready' => 'success',
-        default => 'dark'
+        'pending' => 'bg-warning',
+        'serving' => 'bg-info',
+        'ready' => 'bg-success',
+        'paid' => 'bg-primary',
+        default => 'bg-secondary'
     };
 }
 }

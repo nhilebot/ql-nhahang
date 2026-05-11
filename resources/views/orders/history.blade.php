@@ -141,6 +141,13 @@
         padding: 8px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; transition: all 0.3s; 
     }
     .btn-detail:hover { background: #1A2228; color: #D4AF37; border-color: #1A2228;}
+    
+    .btn-cancel { 
+        background: #dc3545; color: #fff; border: 2px solid #dc3545; 
+        padding: 8px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; 
+        cursor: pointer; transition: all 0.3s; 
+    }
+    .btn-cancel:hover { background: #c82333; border-color: #c82333; }
 
     .detail-box {
         padding: 25px; background: #FCFBF8; border-top: 1px solid #EAEAEA;
@@ -197,7 +204,9 @@
                     @if($item->quantity > 0)
                     <div class="product-row">
                         @php
-                            $imageName = ($item->menu && $item->menu->image) ? $item->menu->image : 'default.jpg';
+                            // $imageName = ($item->menu && $item->menu->image) ? $item->menu->image : 'default.jpg';
+                            $imageName = ($item->product && $item->product->image) ? $item->product->image : 'default.jpg';
+
                             $imageUrl = str_contains($imageName, 'images/') ? asset($imageName) : asset('images/' . $imageName);
                         @endphp
                         <img src="{{ $imageUrl }}" class="product-img" onerror="this.src='{{ asset('images/default.jpg') }}'">
@@ -218,7 +227,14 @@
                     <span class="total-label">Tổng hóa đơn:</span>
                     <span class="total-amount">{{ number_format($order->total_price, 0, ',', '.') }}đ</span>
                 </div>
-                <button class="btn-detail" onclick="toggleDetail('detail-{{ $order->id }}')">Xem chi tiết</button>
+                <div style="display: flex; gap: 10px;">
+                    @if($order->status === 'pending')
+                    <button class="btn-cancel" onclick="cancelOrder({{ $order->id }}, this)">
+                        <i class="fa-solid fa-ban" style="margin-right: 5px;"></i>Hủy đơn
+                    </button>
+                    @endif
+                    <button class="btn-detail" onclick="toggleDetail('detail-{{ $order->id }}')">Xem chi tiết</button>
+                </div>
             </div>
 
             <div id="detail-{{ $order->id }}" class="detail-box" style="display: none;">
@@ -270,6 +286,40 @@
     function toggleDetail(id) {
         const box = document.getElementById(id);
         box.style.display = (box.style.display === "none") ? "block" : "none";
+    }
+
+    function cancelOrder(orderId, btnElement) {
+        if (!confirm('Bạn có chắc muốn hủy đơn hàng này? Hành động này không thể hoàn tác.')) {
+            return;
+        }
+
+        btnElement.disabled = true;
+        btnElement.innerHTML = '<i class="fa-solid fa-hourglass-spinner"></i> Đang xử lý...';
+
+        fetch(`/order/${orderId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Đơn hàng đã bị hủy thành công!');
+                window.location.reload();
+            } else {
+                alert('Lỗi: ' + (data.message || 'Không thể hủy đơn hàng'));
+                btnElement.disabled = false;
+                btnElement.innerHTML = '<i class="fa-solid fa-ban" style="margin-right: 5px;"></i>Hủy đơn';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Lỗi kết nối: ' + error.message);
+            btnElement.disabled = false;
+            btnElement.innerHTML = '<i class="fa-solid fa-ban" style="margin-right: 5px;"></i>Hủy đơn';
+        });
     }
 
     // ECHO REALTIME

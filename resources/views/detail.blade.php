@@ -187,8 +187,7 @@
             <div class="col-md-5">
                 <div class="detail-image-wrapper">
                     <img src="{{ asset($menu->image) }}" alt="{{ $menu->name }}">
-                    <!-- <div class="sale-badge">SALE<br>50%</div> -->
-                </div>
+                    </div>
             </div>
 
             <div class="col-md-7 info-section">
@@ -226,11 +225,7 @@
 </button>
                 </div>
 
-                <!-- <div style="margin-top: 20px;">
-                    <span class="text-muted"><i class="fa fa-check-circle text-success"></i> Phục vụ tại chỗ</span>
-                    <span class="text-muted" style="margin-left: 20px;"><i class="fa fa-truck text-primary"></i> Giao hàng tận nơi</span>
-                </div> -->
-            </div>
+                </div>
         </div>
     </div>
 
@@ -280,16 +275,42 @@
                                 <i class="fa {{ $i <= $comment->rating ? 'fa-star' : 'fa-star-o' }}"></i>
                             @endfor
                         </div>
-                        <p style="color: #555; margin-bottom: 5px;">{{ $comment->content }}</p>
+                        
+                        <p id="comment-text-{{ $comment->id }}" style="color: #555; margin-bottom: 5px;">{{ $comment->content }}</p>
                         
                         @auth
                             @if(Auth::id() === $comment->user_id)
-                                <form action="{{ route('comment.destroy', $comment->id) }}" method="POST">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" style="background: none; border: none; color: #e74c3c; font-size: 12px; padding: 0;">
-                                        <i class="fa fa-trash"></i> Xóa bình luận
+                                <div style="display: flex; gap: 15px; margin-top: 8px;">
+                                    <button type="button" onclick="toggleEditForm({{ $comment->id }})" style="background: none; border: none; color: #3498db; font-size: 12px; padding: 0; cursor: pointer;">
+                                        <i class="fa fa-pencil"></i> Sửa bình luận
                                     </button>
-                                </form>
+
+                                    <form action="{{ route('comment.destroy', $comment->id) }}" method="POST" style="margin: 0;">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" style="background: none; border: none; color: #e74c3c; font-size: 12px; padding: 0; cursor: pointer;" onclick="return confirm('Bạn có chắc chắn muốn xóa bình luận này?');">
+                                            <i class="fa fa-trash"></i> Xóa bình luận
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div id="edit-form-{{ $comment->id }}" style="display: none; margin-top: 10px; background: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee;">
+                                    <form action="{{ route('comment.update', $comment->id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <select name="rating" class="form-control" style="border-radius: 10px; margin-bottom: 10px; width: 250px; display: inline-block;">
+                                            <option value="5" {{ $comment->rating == 5 ? 'selected' : '' }}>★★★★★ - Tuyệt vời</option>
+                                            <option value="4" {{ $comment->rating == 4 ? 'selected' : '' }}>★★★★☆ - Ngon</option>
+                                            <option value="3" {{ $comment->rating == 3 ? 'selected' : '' }}>★★★☆☆ - Tạm được</option>
+                                            <option value="2" {{ $comment->rating == 2 ? 'selected' : '' }}>★★☆☆☆ - Không ngon</option>
+                                            <option value="1" {{ $comment->rating == 1 ? 'selected' : '' }}>★☆☆☆☆ - Tệ</option>
+                                        </select>
+                                        <textarea name="content" class="comment-textarea" rows="2" required>{{ $comment->content }}</textarea>
+                                        <div style="margin-top: 10px;">
+                                            <button type="submit" style="background: #2ecc71; color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer;">Lưu thay đổi</button>
+                                            <button type="button" onclick="toggleEditForm({{ $comment->id }})" style="background: #95a5a6; color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer; margin-left: 5px;">Hủy</button>
+                                        </div>
+                                    </form>
+                                </div>
                             @endif
                         @endauth
                     </div>
@@ -360,13 +381,20 @@ function addToCart(foodId) {
         }
     });
 }
+
+// Hàm bật/tắt form sửa bình luận
+function toggleEditForm(commentId) {
+    let form = document.getElementById('edit-form-' + commentId);
+    let text = document.getElementById('comment-text-' + commentId);
+    
+    if (form.style.display === 'none') {
+        form.style.display = 'block'; // Hiện form sửa
+        text.style.display = 'none';  // Ẩn dòng chữ cũ
+    } else {
+        form.style.display = 'none';  // Ẩn form sửa
+        text.style.display = 'block'; // Hiện lại dòng chữ cũ
+    }
+}
 </script>
 
 @endsection
-
-<!-- ### 3 bước để kiểm tra sau khi thay:
-1. **Lưu file** và quay lại trình duyệt.
-2. **F5 (Tải lại trang)** để trình duyệt nhận đoạn mã Javascript mới.
-3. **Bấm thử vào món hết hàng (Stock = 0):** Bây giờ nó phải hiện thông báo lỗi màu đỏ thay vì màu xanh như lúc nãy.
-
-**Lưu ý quan trọng:** Bạn phải xóa hết những đoạn code thừa nằm bên dưới thẻ đóng `}` của hàm cũ mà bạn lỡ dán vào lần trước, nếu không Javascript sẽ bị lỗi cú pháp và nút bấm sẽ không có tác dụng gì cả. -->

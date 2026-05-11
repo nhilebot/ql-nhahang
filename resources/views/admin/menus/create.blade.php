@@ -81,7 +81,7 @@
     }
     .row { display: flex; gap: 20px; flex-wrap: wrap; }
     .col-half { flex: 1; min-width: 200px; margin-bottom: 20px; }
-    .mb-4 { margin-bottom: 20px; }
+    .col-full { flex: 100%; margin-bottom: 20px; }
 </style>
 
 <div class="form-container-luxury">
@@ -143,7 +143,7 @@
                 @error('price')<span class="error-msg">{{ $message }}</span>@enderror
             </div>
 
-            {{-- ✅ Thêm trường stock bị thiếu --}}
+            {{-- Số lượng tồn kho --}}
             <div class="col-half">
                 <label class="label-custom">Số lượng tồn kho</label>
                 <input type="number" name="stock"
@@ -167,8 +167,20 @@
                 @error('image')<span class="error-msg">{{ $message }}</span>@enderror
             </div>
 
-            {{-- Mô tả --}}
+            {{-- Trạng thái --}}
             <div class="col-half">
+                <label class="label-custom">Trạng thái *</label>
+                <select name="status" class="select-custom {{ $errors->has('status') ? 'input-error' : '' }}" required>
+                    <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Đang mở bán</option>
+                    <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Ngừng bán</option>
+                </select>
+                @error('status')<span class="error-msg">{{ $message }}</span>@enderror
+            </div>
+        </div>
+
+        <div class="row">
+            {{-- Mô tả --}}
+            <div class="col-full">
                 <label class="label-custom">Mô tả món ăn</label>
                 <textarea name="description"
                           class="textarea-custom {{ $errors->has('description') ? 'input-error' : '' }}"

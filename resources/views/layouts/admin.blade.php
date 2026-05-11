@@ -247,9 +247,17 @@ tr:last-child td{border-bottom:none}
         <span class="topbar-title">@yield('topbar_title','Bảng điều khiển')</span>
       </div>
       <div style="display:flex;align-items:center;gap:14px;">
-        <div class="search-box">
-          <span>🔍</span><input type="text" placeholder="Tìm kiếm...">
-        </div>
+        <form action="{{ url()->current() }}" method="GET" class="search-box">
+  <span>🔍</span>
+  <!-- name="search" là tên biến sẽ gửi lên server -->
+  <!-- value="{{ request('search') }}" giúp giữ lại từ khóa vừa nhập -->
+  <input type="text" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm...">
+  
+  <!-- Thêm các input hidden để giữ lại các tham số URL khác nếu có (ví dụ: role=staff) -->
+  @foreach(request()->except('search', 'page') as $key => $value)
+      <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+  @endforeach
+</form>
         <div style="font-size:.82rem;color:#64748b;">{{ now()->format('d/m/Y H:i') }}</div>
       </div>
     </header>

@@ -10,12 +10,30 @@ class AdminMenuController extends Controller
 {
     // ✅ Không cần __construct() — route đã có middleware('role:2')
 
-    public function index()
+    public function index(Request $request)
     {
-        $menus = Menu::with('category_relation')
-                     ->orderBy('category_id', 'asc')
-                     ->orderBy('name', 'asc')
-                     ->paginate(10);
+        // 1. Khởi tạo query với relation
+        $query = Menu::with('category_relation');
+
+        // 2. Kiểm tra nếu có từ khóa tìm kiếm
+        if ($request->has('search') && $request->search != '') {
+            $keyword = $request->search;
+            
+            // Sử dụng closure (hàm ẩn danh) để nhóm điều kiện tìm kiếm bằng ( )
+            // Tránh việc orWhere làm hỏng các điều kiện lọc khác (nếu có sau này)
+            $query->where(function($q) use ($keyword) {
+                $q->where('name', 'LIKE', '%' . $keyword . '%')
+                  ->orWhere('description', 'LIKE', '%' . $keyword . '%');
+            });
+        }
+
+        // 3. Thực hiện sắp xếp và phân trang
+        $menus = $query->orderBy('category_id', 'asc')
+                       ->orderBy('name', 'asc')
+                       ->paginate(10);
+
+        // 4. Giữ lại tham số tìm kiếm trên URL khi người dùng bấm sang trang 2, 3...
+        $menus->appends($request->all());
 
         return view('admin.menus.index', compact('menus'));
     }

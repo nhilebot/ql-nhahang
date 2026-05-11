@@ -165,7 +165,7 @@
     <div id="cb-quick">
         <button class="cb-quick-btn" data-q="Xem thực đơn hôm nay">🍽 Thực đơn</button>
         <button class="cb-quick-btn" data-q="Đặt bàn như thế nào?">📅 Đặt bàn</button>
-        <button class="cb-quick-btn" data-q="Giờ mở cửa của nhà hàng?">🕐 Giờ mở cửa</button>
+        <!-- <button class="cb-quick-btn" data-q="Giờ mở cửa của nhà hàng?">🕐 Giờ mở cửa</button> -->
         <button class="cb-quick-btn" data-q="Liên hệ nhà hàng">📞 Liên hệ</button>
     </div>
 

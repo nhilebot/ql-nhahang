@@ -51,8 +51,11 @@ class OrderController extends Controller
      */
     public function history()
     {
-        $orders = Order::where('user_id', auth()->id())->with('items')->latest()->get();
-        return view('orders.history', compact('orders'));
+       $orders = \App\Models\Order::with(['user.role', 'orderItems.product.category'])
+                      ->orderBy('created_at', 'desc')
+                      ->paginate(20);
+    
+    return view('orders.history', compact('orders'));
     }
 
     /**
@@ -78,6 +81,40 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
         $order->update(['status' => $request->input('status')]);
         return redirect()->back()->with('success', 'Đã cập nhật trạng thái!');
+    }
+
+    /**
+     * Hủy đơn hàng (chỉ khi ở trạng thái pending)
+     */
+    public function cancel($id)
+    {
+        try {
+            $order = Order::findOrFail($id);
+
+            // Chỉ cho phép hủy khi ở trạng thái pending
+            if ($order->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Chỉ có thể hủy đơn ở trạng thái chờ duyệt!'
+                ], 400);
+            }
+
+            // Cập nhật trạng thái thành cancelled
+            $order->update(['status' => 'cancelled']);
+
+            // Broadcast cập nhật cho admin, nhân viên và khách hàng qua Echo
+            event(new \App\Events\OrderStatusUpdated($order));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đơn hàng đã bị hủy thành công!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     // =========================================================

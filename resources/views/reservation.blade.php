@@ -53,6 +53,7 @@
         margin-bottom: 40px; 
         font-weight: 700;
         letter-spacing: 1px;
+        margin-top: 100px
     }
 
     .form-title::after {

@@ -29,6 +29,30 @@ class CommentController extends Controller
         return redirect()->back()->with('success', 'Bình luận của bạn đã được gửi thành công!');
     }
 
+    // ĐÂY LÀ HÀM UPDATE VỪA ĐƯỢC THÊM VÀO
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'content' => 'required|string|min:3|max:1000',
+            'rating' => 'required|integer|min:1|max:5',
+        ]);
+
+        $comment = Comment::findOrFail($id);
+
+        // Kiểm tra quyền: Chỉ người viết bình luận mới được phép sửa
+        if ($comment->user_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'Bạn không có quyền sửa bình luận này!');
+        }
+
+        // Cập nhật dữ liệu
+        $comment->update([
+            'content' => $request->content,
+            'rating' => $request->rating,
+        ]);
+
+        return redirect()->back()->with('success', 'Đã cập nhật bình luận thành công!');
+    }
+
     public function destroy($id)
     {
         $comment = Comment::findOrFail($id);

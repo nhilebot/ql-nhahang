@@ -11,9 +11,8 @@ class Category extends Model
 
     protected $fillable = ['name', 'image'];
 
-    public function menus()
+   public function products()
 {
-    // Giả sử tên cột thực tế trong database của bạn là 'id_category'
-   return $this->hasMany(Menu::class, 'category_id');
+    return $this->hasMany(Product::class, 'category_id');
 }
 }

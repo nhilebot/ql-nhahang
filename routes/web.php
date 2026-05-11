@@ -85,6 +85,7 @@ Route::get('/order-history', [App\Http\Controllers\OrderController::class, 'hist
     });
 
     Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
+    Route::post('/order/{id}/cancel', [OrderController::class, 'cancel'])->name('order.cancel');
     Route::post('/menu/{menuId}/comment', [CommentController::class, 'store'])->name('comment.store');
     Route::delete('/comment/{id}', [CommentController::class, 'destroy'])->name('comment.destroy');
 
@@ -198,3 +199,4 @@ Route::get('/test-models', function () {
 Route::post('/chatbot/ask', [ChatbotController::class, 'ask'])
     ->name('chatbot.ask')
     ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+    Route::put('/comments/{id}', [App\Http\Controllers\CommentController::class, 'update'])->name('comment.update');
