@@ -264,7 +264,11 @@
         <div class="comment-list">
             @forelse($menu->comments as $comment)
                 <div class="comment-item">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode($comment->user->name) }}&background=e74c3c&color=fff" class="avatar-circle">
+                    <img 
+    src="{{ $comment->user->avatar 
+        ? asset('storage/' . $comment->user->avatar) 
+        : 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->name) . '&background=e74c3c&color=fff' }}"
+    class="avatar-circle">
                     <div style="flex: 1;">
                         <div style="display: flex; justify-content: space-between;">
                             <h5 style="margin: 0; font-weight: bold;">{{ $comment->user->name }}</h5>

@@ -17,28 +17,28 @@
             <div class="stat-label">Doanh thu hôm nay</div>
             <div class="stat-value" style="color:#16a34a;">{{ number_format($totalToday ?? 0) }}đ</div>
         </div>
-        <div class="stat-icon-wrap">💰</div>
+        <div class="stat-icon">💰</div>
     </div>
     <div class="stat-card">
         <div>
             <div class="stat-label">Doanh thu tháng</div>
             <div class="stat-value" style="color:#5b3cff;">{{ number_format($totalMonth ?? 0) }}đ</div>
         </div>
-        <div class="stat-icon-wrap">📈</div>
+        <div class="stat-icon">📈</div>
     </div>
     <div class="stat-card">
         <div>
             <div class="stat-label">Tổng doanh thu</div>
             <div class="stat-value" style="color:#0f172a;">{{ number_format($totalRevenue ?? 0) }}đ</div>
         </div>
-        <div class="stat-icon-wrap">🏦</div>
+        <div class="stat-icon">🏦</div>
     </div>
     <div class="stat-card">
         <div>
             <div class="stat-label">Tổng đơn hàng</div>
             <div class="stat-value">{{ $orders->count() }}</div>
         </div>
-        <div class="stat-icon-wrap">📋</div>
+        <div class="stat-icon">📋</div>
     </div>
 </div>
 

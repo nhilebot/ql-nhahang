@@ -5,78 +5,459 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>@yield('page_title', 'Quản trị') – Nhà hàng Việt</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('admin_assets/style.css') }}">
 <style>
-.sub-menu{display:none;flex-direction:column;padding-left:42px;margin:4px 0 6px}
-.sub-item{color:#8c98a4;text-decoration:none;font-size:13.5px;padding:8px 14px;border-radius:8px;transition:all .2s;margin-bottom:2px;display:block}
-.sub-item:hover,.sub-item.active{color:#a78bff;background:rgba(255,255,255,.06)}
-.nav-arrow{transition:transform .28s;display:inline-block;font-style:normal}
-.rotate-90{transform:rotate(90deg)}
-.role-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase}
-.role-admin{background:rgba(239,68,68,.18);color:#f87171}
-.role-staff{background:rgba(59,130,246,.18);color:#60a5fa}
-.role-chef{background:rgba(245,158,11,.18);color:#fbbf24}
-.role-cashier{background:rgba(16,185,129,.18);color:#34d399}
-.role-customer{background:rgba(148,163,184,.12);color:#94a3b8}
-.sidebar-divider{height:1px;background:rgba(255,255,255,.07);margin:10px 16px}
-.flash-bar{position:fixed;top:0;left:0;right:0;z-index:9999;padding:12px 24px;font-weight:600;font-size:.88rem;display:flex;align-items:center;gap:10px;animation:slideDown .35s ease}
-.flash-success{background:#16a34a;color:#fff}
-.flash-error{background:#dc2626;color:#fff}
-@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
-.stat-card{background:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 4px 20px rgba(15,23,42,.07);display:flex;align-items:center;justify-content:space-between}
-.stat-label{font-size:.78rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-.stat-value{font-size:1.6rem;font-weight:800;color:#0f172a;margin-top:4px}
-.stat-icon-wrap{font-size:2rem}
-.panel{background:#fff;border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(15,23,42,.07)}
-.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.panel-title{font-size:1.05rem;font-weight:700;color:#0f172a}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:11px 14px;font-size:.76rem;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #f1f5f9;background:#f8fafc}
-td{padding:13px 14px;border-bottom:1px solid #f1f5f9;font-size:.9rem;vertical-align:middle}
-tr:last-child td{border-bottom:none}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-size:.84rem;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:all .18s}
-.btn-primary{background:#5b3cff;color:#fff}.btn-primary:hover{background:#4a30e0}
-.btn-success{background:#16a34a;color:#fff}.btn-success:hover{background:#15803d}
-.btn-warning{background:#d97706;color:#fff}.btn-warning:hover{background:#b45309}
-.btn-danger{background:#dc2626;color:#fff}.btn-danger:hover{background:#b91c1c}
-.btn-ghost{background:transparent;color:#64748b;border:1px solid #e2e8f0}.btn-ghost:hover{background:#f8fafc}
-.btn-sm{padding:5px 12px;font-size:.8rem}
-.form-group{margin-bottom:18px}
-.form-label{display:block;font-size:.83rem;font-weight:600;color:#374151;margin-bottom:6px}
-.form-control{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:.9rem;outline:none;transition:border .2s;font-family:inherit}
-.form-control:focus{border-color:#5b3cff}
-.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700}
-.badge-pending{background:#fff4e5;color:#92400e}
-.badge-confirmed{background:#eff6ff;color:#1d4ed8}
-.badge-serving{background:#fefce8;color:#854d0e}
-.badge-served{background:#f0fdf4;color:#15803d}
-.badge-paid{background:#ecfdf5;color:#059669}
-.badge-cancelled{background:#fef2f2;color:#dc2626}
-.user-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#5b3cff,#a78bff);display:grid;place-items:center;font-weight:800;font-size:.85rem;color:#fff;flex-shrink:0}
-.user-name{font-size:.88rem;font-weight:700;color:#fff}
-.user-role{font-size:.72rem;color:rgba(255,255,255,.45);margin-top:2px}
-.btn-logout{width:100%;padding:9px;border-radius:9px;background:rgba(220,38,38,.15);color:#f87171;border:1px solid rgba(220,38,38,.25);font-weight:600;font-size:.83rem;cursor:pointer;transition:all .2s}
-.btn-logout:hover{background:rgba(220,38,38,.28)}
-.topbar{background:#fff;border-bottom:1px solid #f1f5f9;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.topbar-left{display:flex;align-items:center;gap:14px}
-.topbar-title{font-size:1.05rem;font-weight:700;color:#0f172a}
-.menu-btn{background:none;border:none;font-size:1.3rem;cursor:pointer;color:#64748b}
-.search-box{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:8px 14px}
-.search-box input{background:none;border:none;outline:none;font-size:.88rem;width:180px;font-family:inherit}
-.content{padding:24px 28px}
+  
+    /* CSS Variables cho Theme Sang Trọng */
+    :root {
+        --sidebar-bg: #1A2228;
+        --sidebar-bg-hover: #2C3A47;
+        --sidebar-text: #A0AEC0;
+        --sidebar-text-active: #FFFFFF;
+        --gold-accent: #D4AF37;
+        --gold-glow: rgba(212, 175, 55, 0.15);
+        --bg-main: #F4F7FE;
+        --card-bg: #FFFFFF;
+        --text-dark: #1A2228;
+        --text-muted: #718096;
+        --border-color: #E2E8F0;
+        --shadow-sm: 0 2px 10px rgba(0,0,0,0.02);
+        --shadow-md: 0 10px 30px rgba(0,0,0,0.04);
+        --transition: all 0.3s ease;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Be Vietnam Pro', sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-dark);
+        overflow: hidden;
+    }
+
+    .app {
+        display: flex;
+        height: 100vh;
+        width: 100vw;
+    }
+
+    /* --- SIDEBAR --- */
+    .sidebar {
+        width: 280px;
+        background-color: var(--sidebar-bg);
+        display: flex;
+        flex-direction: column;
+        color: var(--sidebar-text);
+        box-shadow: 4px 0 20px rgba(0,0,0,0.05);
+        z-index: 100;
+    }
+
+    .sidebar-logo {
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .logo-text {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--gold-accent);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .logo-sub {
+        font-size: 0.75rem;
+        color: #718096;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-top: 2px;
+    }
+
+    .sidebar-section-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #4A5568;
+        padding: 24px 24px 10px;
+    }
+
+    .sidebar-nav {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0 16px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar { width: 4px; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        margin-bottom: 6px;
+        border-radius: 12px;
+        color: var(--sidebar-text);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: var(--transition);
+        border: 1px solid transparent;
+    }
+
+    .nav-item-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .nav-icon {
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        transition: transform 0.3s ease;
+    }
+
+    .nav-item:hover {
+        background-color: var(--sidebar-bg-hover);
+        color: var(--sidebar-text-active);
+    }
+
+    .nav-item:hover .nav-icon {
+        transform: scale(1.15);
+    }
+
+    .nav-item.active {
+        background-color: var(--gold-glow);
+        color: var(--gold-accent);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        font-weight: 600;
+    }
+
+    .sub-menu {
+        display: none;
+        flex-direction: column;
+        padding-left: 44px;
+        margin: 0 0 10px 0;
+        position: relative;
+    }
+
+    .sub-menu::before {
+        content: '';
+        position: absolute;
+        left: 27px;
+        top: 0;
+        bottom: 10px;
+        width: 1px;
+        background: rgba(255,255,255,0.1);
+    }
+
+    .sub-item {
+        color: #718096;
+        text-decoration: none;
+        font-size: 0.85rem;
+        padding: 10px 16px;
+        border-radius: 8px;
+        transition: var(--transition);
+        margin-bottom: 2px;
+        position: relative;
+    }
+
+    .sub-item::before {
+        content: '';
+        position: absolute;
+        left: -17px;
+        top: 50%;
+        width: 10px;
+        height: 1px;
+        background: rgba(255,255,255,0.1);
+    }
+
+    .sub-item:hover, .sub-item.active {
+        color: var(--gold-accent);
+        background: rgba(255,255,255,0.03);
+    }
+
+    .nav-arrow {
+        font-size: 1.1rem;
+        transition: transform 0.3s ease;
+        opacity: 0.5;
+    }
+    .rotate-90 { transform: rotate(90deg); opacity: 1; color: var(--gold-accent); }
+
+    /* --- NÚT THAO TÁC NGHIỆP VỤ (BUTTONS) --- */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .btn:active {
+        transform: translateY(1px);
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.78rem;
+        border-radius: 8px;
+        gap: 4px;
+    }
+
+    /* Nút chính (Thêm mới, Lưu) -> Màu Vàng Gold */
+    .btn-primary {
+        background: var(--gold-accent);
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+    }
+    .btn-primary:hover {
+        background: #B58500;
+        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+        color: #fff;
+    }
+
+    /* Nút thành công (Xác nhận, Phục vụ) -> Màu Xanh lá */
+    .btn-success {
+        background: #10B981;
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+    }
+    .btn-success:hover {
+        background: #059669;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        color: #fff;
+    }
+
+    /* Nút cảnh báo (Tạm ngưng, Sửa) -> Màu Cam */
+    .btn-warning {
+        background: #F59E0B;
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+    }
+    .btn-warning:hover {
+        background: #D97706;
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+        color: #fff;
+    }
+
+    /* Nút nguy hiểm (Xóa, Hủy) -> Màu Đỏ */
+    .btn-danger {
+        background: #EF4444;
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+    }
+    .btn-danger:hover {
+        background: #DC2626;
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        color: #fff;
+    }
+
+    /* Nút phụ / Quay lại -> Màu trong suốt viền xám */
+    .btn-ghost {
+        background: transparent;
+        color: var(--text-muted);
+        border: 1px solid var(--border-color);
+    }
+    .btn-ghost:hover {
+        background: #fff;
+        color: var(--text-dark);
+        border-color: #CBD5E1;
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* --- SIDEBAR FOOTER & USER --- */
+    .sidebar-footer {
+        padding: 20px;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        background: rgba(0,0,0,0.1);
+    }
+
+    .user-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        padding: 10px;
+        background: var(--sidebar-bg-hover);
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.02);
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--gold-accent), #B58500);
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        font-size: 1rem;
+        color: #fff;
+        flex-shrink: 0;
+        box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
+    }
+
+    .user-name { font-size: 0.9rem; font-weight: 700; color: #fff; }
+    
+    .role-badge {
+        display: inline-block;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-top: 4px;
+    }
+    .role-admin { background: rgba(239,68,68,0.15); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.2); }
+    .role-staff { background: rgba(59,130,246,0.15); color: #93C5FD; border: 1px solid rgba(59,130,246,0.2); }
+    .role-chef { background: rgba(245,158,11,0.15); color: #FCD34D; border: 1px solid rgba(245,158,11,0.2); }
+    .role-cashier { background: rgba(16,185,129,0.15); color: #6EE7B7; border: 1px solid rgba(16,185,129,0.2); }
+    .role-customer { background: rgba(148,163,184,0.1); color: #CBD5E1; }
+
+    .btn-logout {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        background: transparent;
+        color: #FCA5A5;
+        border: 1px solid rgba(239,68,68,0.3);
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: var(--transition);
+        font-family: inherit;
+    }
+    .btn-logout:hover {
+        background: rgba(239,68,68,0.15);
+        border-color: rgba(239,68,68,0.5);
+    }
+
+    /* --- MAIN LAYOUT & TOPBAR --- */
+    .main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .topbar {
+        background: var(--card-bg);
+        padding: 16px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .menu-btn {
+        background: none;
+        border: none;
+        font-size: 1.4rem;
+        cursor: pointer;
+        color: var(--text-muted);
+        padding: 0;
+        transition: color 0.2s;
+    }
+    .menu-btn:hover { color: var(--gold-accent); }
+
+    .topbar-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        font-family: 'Playfair Display', serif;
+    }
+
+    .search-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--bg-main);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 10px 16px;
+        transition: var(--transition);
+    }
+    .search-box:focus-within {
+        border-color: var(--gold-accent);
+        box-shadow: 0 0 0 3px var(--gold-glow);
+        background: #fff;
+    }
+
+    .search-box input {
+        background: none;
+        border: none;
+        outline: none;
+        font-size: 0.9rem;
+        width: 200px;
+        font-family: inherit;
+        color: var(--text-dark);
+    }
+    .search-box input::placeholder { color: #A0AEC0; }
+
+    .content {
+        padding: 32px;
+        flex: 1;
+    }
+
+    /* --- ALERTS / FLASH MESSAGES --- */
+    .flash-bar {
+        position: fixed;
+        top: 20px;
+        right: 32px;
+        left: auto;
+        z-index: 9999;
+        padding: 16px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .flash-success { background: #10B981; color: #fff; border-left: 4px solid #047857; }
+    .flash-error { background: #EF4444; color: #fff; border-left: 4px solid #B91C1C; }
+
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
 </style>
 </head>
 <body>
 
 @if(session('success'))
-<div class="flash-bar flash-success" id="flash-msg">✓ {{ session('success') }}</div>
+<div class="flash-bar flash-success" id="flash-msg"><span>✅</span> {{ session('success') }}</div>
 @elseif(session('error'))
-<div class="flash-bar flash-error" id="flash-msg">✗ {{ session('error') }}</div>
+<div class="flash-bar flash-error" id="flash-msg"><span>❌</span> {{ session('error') }}</div>
 @endif
 
 <div class="app">
@@ -85,7 +466,8 @@ tr:last-child td{border-bottom:none}
     <div class="sidebar-logo">
       <div class="logo-icon">
         <a href="{{ url('/') }}" style="display:flex;align-items:center;">
-          <img src="{{ asset('images/logo.png') }}" alt="Logo" style="width:100px;filter:drop-shadow(0 0 2px rgba(0,0,0,.4));">
+          {{-- Nếu logo bị lỗi nền đen, hãy dùng logo trong suốt hoặc thay bằng icon --}}
+          <img src="{{ asset('images/logo.png') }}" alt="Logo" style="width:60px; border-radius: 8px;">
         </a>
       </div>
       <div>
@@ -99,7 +481,6 @@ tr:last-child td{border-bottom:none}
     $rawRole = auth()->user()->role_id;
     
     // Ánh xạ số sang chữ để các lệnh @if bên dưới chạy đúng
-    // Giả sử: 2 là admin, 3 là staff, 4 là chef, 1 là cashier
     $roleMap = [
         1 => 'cashier',
         2 => 'admin',
@@ -111,7 +492,7 @@ tr:last-child td{border-bottom:none}
     
     $userName = auth()->user()->name ?? 'User';
     $initials = mb_strtoupper(mb_substr($userName, 0, 1));
-@endphp
+    @endphp
 
     <div class="sidebar-section-label">Menu chức năng</div>
 
@@ -162,7 +543,13 @@ tr:last-child td{border-bottom:none}
           <div class="nav-item-left"><div class="nav-icon">📅</div>Đặt bàn & Phục vụ</div>
           <span class="nav-arrow">›</span>
         </a>
-
+      <a class="nav-item {{ Request::routeIs('admin.bills.*') ? 'active' : '' }}"
+   href="{{ route('admin.bills.index') }}">
+  <div class="nav-item-left">
+      <div class="nav-icon">🧾</div>Quản lý hóa đơn
+  </div>
+  <span class="nav-arrow">›</span>
+</a>
         <div>
           <a class="nav-item {{ Request::routeIs('admin.employees.*') ? 'active' : '' }}"
              href="#" onclick="toggleSub(event,'emp-sub',this)">
@@ -223,42 +610,42 @@ tr:last-child td{border-bottom:none}
 
     </nav>
 
-    <div style="flex:1"></div>
-
     <div class="sidebar-footer">
       <div class="user-row">
         <div class="avatar">{{ $initials }}</div>
-        <div>
-          <div class="user-name">{{ $userName }}</div>
+        <div style="overflow: hidden;">
+          <div class="user-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $userName }}</div>
           <div class="user-role">
             @php $roleLabels=['admin'=>'Quản trị viên','staff'=>'Nhân viên phục vụ','chef'=>'Đầu bếp','cashier'=>'Thu ngân','customer'=>'Khách hàng']; @endphp
             <span class="role-badge role-{{ $role }}">{{ $roleLabels[$role] ?? $role }}</span>
           </div>
         </div>
       </div>
-      <button class="btn-logout" onclick="document.getElementById('logout-form').submit();">🚪 Đăng xuất</button>
+      <button class="btn-logout" onclick="document.getElementById('logout-form').submit();">🚪 Đăng xuất hệ thống</button>
     </div>
   </aside>
 
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="menu-btn">☰</button>
+        <button class="menu-btn" title="Thu gọn menu">☰</button>
         <span class="topbar-title">@yield('topbar_title','Bảng điều khiển')</span>
       </div>
-      <div style="display:flex;align-items:center;gap:14px;">
+      <div style="display:flex;align-items:center;gap:20px;">
         <form action="{{ url()->current() }}" method="GET" class="search-box">
-  <span>🔍</span>
-  <!-- name="search" là tên biến sẽ gửi lên server -->
-  <!-- value="{{ request('search') }}" giúp giữ lại từ khóa vừa nhập -->
-  <input type="text" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm...">
-  
-  <!-- Thêm các input hidden để giữ lại các tham số URL khác nếu có (ví dụ: role=staff) -->
-  @foreach(request()->except('search', 'page') as $key => $value)
-      <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-  @endforeach
-</form>
-        <div style="font-size:.82rem;color:#64748b;">{{ now()->format('d/m/Y H:i') }}</div>
+            <span style="opacity: 0.5;">🔍</span>
+            <!-- name="search" là tên biến sẽ gửi lên server -->
+            <!-- value="{{ request('search') }}" giúp giữ lại từ khóa vừa nhập -->
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm...">
+            
+            <!-- Thêm các input hidden để giữ lại các tham số URL khác nếu có (ví dụ: role=staff) -->
+            @foreach(request()->except('search', 'page') as $key => $value)
+                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endforeach
+        </form>
+        <div style="font-size:0.85rem; color:#718096; font-weight: 500; background: var(--bg-main); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+            📅 {{ now()->format('d/m/Y - H:i') }}
+        </div>
       </div>
     </header>
 
@@ -276,14 +663,22 @@ tr:last-child td{border-bottom:none}
 <script>
 function toggleSub(e,id,el){
   e.preventDefault();
-  var s=document.getElementById(id);
-  var a=el.querySelector('.nav-arrow');
-  var o=s.style.display==='flex';
-  s.style.display=o?'none':'flex';
-  a.classList.toggle('rotate-90',!o);
+  var s = document.getElementById(id);
+  var a = el.querySelector('.nav-arrow');
+  var o = s.style.display === 'flex';
+  s.style.display = o ? 'none' : 'flex';
+  a.classList.toggle('rotate-90', !o);
 }
-var f=document.getElementById('flash-msg');
-if(f)setTimeout(function(){f.style.opacity='0';f.style.transition='opacity .5s';setTimeout(function(){f.remove()},500)},3500);
+
+// Cải tiến Flash Message: Trượt ra tự nhiên
+var f = document.getElementById('flash-msg');
+if(f) {
+    setTimeout(function(){
+        f.style.transform = 'translateX(120%)';
+        f.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        setTimeout(function(){ f.remove() }, 500);
+    }, 4000);
+}
 </script>
 <!-- @include('partials.chatbox') -->
 </body>

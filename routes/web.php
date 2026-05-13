@@ -85,7 +85,8 @@ Route::get('/order-history', [App\Http\Controllers\OrderController::class, 'hist
     });
 
     Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
-    Route::post('/order/{id}/cancel', [OrderController::class, 'cancel'])->name('order.cancel');
+    Route::put('/comment/{id}', [CommentController::class, 'update'])
+    ->name('comment.update');
     Route::post('/menu/{menuId}/comment', [CommentController::class, 'store'])->name('comment.store');
     Route::delete('/comment/{id}', [CommentController::class, 'destroy'])->name('comment.destroy');
 
@@ -94,6 +95,12 @@ Route::get('/order-history', [App\Http\Controllers\OrderController::class, 'hist
     //    Admin được phép vào tất cả các trang của Staff (role:3)
     // =========================================================
     Route::middleware('role:2')->prefix('admin')->name('admin.')->group(function () {
+        // Quản lý hóa đơn
+Route::get('/bills', [App\Http\Controllers\AdminBillController::class, 'index'])
+    ->name('bills.index');
+
+Route::get('/bills/{id}', [App\Http\Controllers\AdminBillController::class, 'show'])
+    ->name('bills.show');
         Route::get('/', [AdminController::class, 'index'])->name('index');
     Route::get('/create', [AdminController::class, 'create'])->name('create');
     // Route::get('/employees', [AdminUserController::class, 'index'])->name('employees.index');

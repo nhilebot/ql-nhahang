@@ -13,5 +13,9 @@ class OrderItem extends Model
     protected $casts = ['price' => 'decimal:2'];
 
     public function order() { return $this->belongsTo(Order::class); }
+    public function menu()
+{
+    return $this->belongsTo(Menu::class, 'menu_id');
+}
     public function product() { return $this->belongsTo(Product::class, 'menu_id'); }
 }

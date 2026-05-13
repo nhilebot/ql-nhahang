@@ -8,25 +8,32 @@ use Illuminate\Http\Request;
 class MenuchitietController extends Controller
 {
     public function index(Request $request)
-    {
-        // Lấy TẤT CẢ danh mục truyền ra view để làm menu nút bấm
-        $categories = \App\Models\Category::all();
+{
+    // Lấy tất cả danh mục
+    $categories = \App\Models\Category::all();
 
-        // Lọc món ăn theo danh mục nếu khách bấm vào nút, và CHỈ LẤY MÓN ĐANG BÁN (status = 1)
-        if ($request->has('category_id')) {
-            $menus = \App\Models\Menu::with('category_relation')
-                        ->where('category_id', $request->category_id)
-                        ->where('status', 1) 
-                        ->get();
-        } else {
-            $menus = \App\Models\Menu::with('category_relation')
-                        ->where('status', 1)
-                        ->get();
-        }
+    // Khởi tạo query
+    $menus = \App\Models\Menu::with('category_relation')
+                ->where('status', 1);
 
-        // Truyền cả $menus và $categories ra View
-        return view('menu', compact('menus', 'categories'));
+    // Tìm kiếm theo tên món
+    if ($request->filled('search')) {
+        $menus->where(function($query) use ($request) {
+            $query->where('name', 'LIKE', '%' . $request->search . '%')
+                  ->orWhere('description', 'LIKE', '%' . $request->search . '%');
+        });
     }
+
+    // Lọc theo danh mục
+    if ($request->filled('category_id')) {
+        $menus->where('category_id', $request->category_id);
+    }
+
+    // Lấy dữ liệu
+    $menus = $menus->get();
+
+    return view('menu', compact('menus', 'categories'));
+}
 
     public function special()
     {

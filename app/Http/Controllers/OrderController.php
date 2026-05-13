@@ -62,19 +62,16 @@ class OrderController extends Controller
      * Chi tiết đơn hàng — FIX: Admin có thể xem bất kỳ đơn nào
      */
     public function show($id)
-    {
-        $roleId = (int) auth()->user()->role_id;
+{
+    $order = Order::with([
+        'items',
+        'items.menu',
+        'user',
+        'table'
+    ])->findOrFail($id);
 
-        if ($roleId === 2) {
-            // Admin xem được mọi đơn
-            $order = Order::with(['items.menu'])->findOrFail($id);
-        } else {
-            // Khách chỉ xem được đơn của mình
-            $order = Order::with(['items.menu'])->where('user_id', Auth::id())->findOrFail($id);
-        }
-
-        return view('orders.show', compact('order'));
-    }
+    return view('orders.show', compact('order'));
+}
 
     public function updateStatus(Request $request, $id)
     {

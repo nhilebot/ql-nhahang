@@ -427,7 +427,7 @@
             <div class="col-md-6">
                 <label class="payment-item" id="label-bank">
                     <input type="radio" name="payment_method" value="BANK">
-                    <i class="fas fa-qrcode"></i>
+                    <!-- <i class="fas fa-qrcode"></i> -->
                     <div>
                         <h6>Chuyển Khoản Ngân Hàng</h6>
                         <small>Tiện lợi, an toàn qua mã QR</small>

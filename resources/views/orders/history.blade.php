@@ -154,7 +154,7 @@
         border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
     }
     .detail-box p { margin-bottom: 12px; font-size: 14px; color: #4A5568; }
-    .detail-box strong { color: #1A2228; width: 110px; display: inline-block; font-weight: 600; }
+    .detail-box strong { color: #1A2228;  display: inline-block; font-weight: 600; }
     .detail-box i { color: #D4AF37; width: 20px; text-align: center; margin-right: 5px; }
 
     .empty-state { text-align: center; padding: 100px 20px; }
