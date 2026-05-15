@@ -160010,3 +160010,5 @@ Did you mean one of these?
 [2026-05-15 16:08:59] local.INFO: === LATEST RESERVATION === {"found":"NO","reservation":null} 
 [2026-05-15 16:16:14] local.INFO: === CART INDEX DEBUG === {"user_id":5,"user_name":"Khách hàng"} 
 [2026-05-15 16:16:14] local.INFO: === LATEST RESERVATION === {"found":"NO","reservation":null} 
+[2026-05-15 21:02:23] local.INFO: === CART INDEX DEBUG === {"user_id":5,"user_name":"Khách hàng"} 
+[2026-05-15 21:02:23] local.INFO: === LATEST RESERVATION === {"found":"YES","reservation":{"id":2,"full_name":"trạng thái của khách hàng","table_id":1}} 
