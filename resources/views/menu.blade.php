@@ -426,11 +426,14 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    showToast('✓ ' + response.message, 'success');
-                    $('.badge').text(response.cartCount); 
-                } else {
-                    showToast('✗ ' + response.message, 'error');
-                }
+    // Sửa chữ thành nội dung bạn muốn hiện ra
+    showToast('✓ Đã thêm vào thực đơn!', 'success'); 
+    $('.badge').text(response.cartCount); 
+} else {
+    // Sửa nội dung thông báo lỗi (ví dụ hết hàng)
+    var errorMsg = response.message ? response.message : 'Không thể thêm món!';
+    showToast('✗ ' + errorMsg, 'error');
+}
             },
             error: function() {
                 showToast('Bạn cần đăng nhập để thực hiện!', 'error');
