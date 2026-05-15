@@ -20,7 +20,7 @@
     <div class="card shadow border-0">
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
             <h5 class="m-0 font-weight-bold text-primary">🗓️ Quản lý Đặt bàn & Phục vụ</h5>
-<a href="{{ route('admin.reservations.create') }}" class="btn btn-primary btn-sm">+ Thêm Đặt Bàn</a>
+<a href="{{ route('admin.reservations.create') }}" class="btn btn-primary btn-sm">+ Đặt bàn tại chỗ</a>
         </div>
 
         <div class="card-body">

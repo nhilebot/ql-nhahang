@@ -295,7 +295,7 @@
                         <small style="color:#e74c3c;">(Đã đặt)</small>
                     @elseif($table->status === 'cleaning')
                         {{-- Hiển thị đếm ngược nếu đang dọn dẹp --}}
-                        <small style="color:#718096;">
+                        <small style="color: #e74c3c;">
                             🧹 Dọn dẹp (<span class="cleaning-timer" 
                                               data-start="{{ $table->cleanup_started_at }}" 
                                               data-id="{{ $table->id }}">60</span>s)

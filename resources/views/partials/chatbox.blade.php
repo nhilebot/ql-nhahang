@@ -2,23 +2,61 @@
 {{-- Nhúng vào layout chính: @include('partials.chatbox') --}}
 
 <style>
-/* ── Chatbox floating button & panel ── */
+/* ── BẢNG MÀU SANG TRỌNG (FINE DINING THEME) ── */
 :root {
-    --cb-primary: #D4AF37; /* Màu vàng Gold sang trọng */
-    --cb-primary-dark: #B5952F;
-    --cb-bg: #ffffff;
-    --cb-text-main: #2d3748;
-    --cb-text-light: #718096;
-    --cb-msg-bot: #f8f9fa;
-    --cb-msg-user: #D4AF37;
-    --cb-font: 'Helvetica Neue', Arial, sans-serif; /* Bạn có thể đổi sang font web đang dùng */
+    --cb-primary: #D4AF37;       /* Vàng Gold nguyên bản */
+    --cb-primary-dark: #B5952F;  /* Vàng Gold sậm (hiệu ứng hover) */
+    --cb-bg: #FCFAF5;            /* Trắng kem ấm (Nền chat) */
+    --cb-header-bg: #141414;     /* Đen nhám sâu (Header) */
+    --cb-text-main: #33312E;     /* Xám đen chỉn chu (Chữ) */
+    --cb-text-light: #8A857D;    /* Xám nhạt (Ghi chú) */
+    --cb-msg-bot: #F5EFEB;       /* Trắng sữa hơi ngả beige (Bot) */
+    --cb-border: #EAE3D5;        /* Viền vàng nhạt */
+    --cb-font: 'Helvetica Neue', Arial, sans-serif;
 }
 
+/* ── Hình ảnh món ăn ── */
+.cb-dish-img {
+    width: 100%;
+    max-width: 250px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    display: block;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid var(--cb-border);
+    object-fit: cover;
+}
+
+/* ── Nút bấm xem chi tiết món ăn (Chất liệu Kim Loại Gold) ── */
+.cb-link-btn {
+    display: block;
+    margin-top: 10px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #E6C875 0%, var(--cb-primary) 50%, var(--cb-primary-dark) 100%);
+    color: #fff !important;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
+    transition: all 0.25s ease;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.cb-link-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(212, 175, 55, 0.5);
+    background: linear-gradient(135deg, #EFD690 0%, var(--cb-primary) 50%, var(--cb-primary-dark) 100%);
+}
+
+/* ── Nút nổi bật (Floating Button) ── */
 #cb-toggle {
     position: fixed; bottom: 30px; right: 30px; z-index: 9990;
-    width: 60px; height: 60px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--cb-primary), var(--cb-primary-dark));
-    border: none; cursor: pointer; 
+    width: 65px; height: 65px; border-radius: 50%;
+    background: linear-gradient(135deg, #E6C875, var(--cb-primary), var(--cb-primary-dark));
+    border: 2px solid rgba(255,255,255,0.2); 
+    cursor: pointer; 
     box-shadow: 0 8px 24px rgba(212, 175, 55, 0.4);
     display: flex; align-items: center; justify-content: center;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -27,54 +65,56 @@
     transform: translateY(-5px) scale(1.05); 
     box-shadow: 0 12px 28px rgba(212, 175, 55, 0.6); 
 }
-#cb-toggle svg { width: 30px; height: 30px; fill: #fff; }
+#cb-toggle svg { width: 32px; height: 32px; fill: #fff; }
 
+/* ── Cửa sổ Chat (Panel) ── */
 #cb-panel {
-    position: fixed; bottom: 100px; right: 30px; z-index: 9991;
-    width: 380px; max-height: 600px; height: 80vh;
+    position: fixed; bottom: 110px; right: 30px; z-index: 9991;
+    width: 380px; max-height: 650px; height: 80vh;
     background: var(--cb-bg); border-radius: 20px;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+    box-shadow: 0 15px 50px rgba(0,0,0,0.2);
     display: flex; flex-direction: column;
     transform: scale(0.95) translateY(20px); opacity: 0; pointer-events: none;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     overflow: hidden;
     font-family: var(--cb-font);
+    border: 1px solid rgba(212, 175, 55, 0.2);
 }
 #cb-panel.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: auto; }
 
-/* Header */
+/* ── Header Đen Nhám & Vàng Gold ── */
 #cb-header {
-    background: #1a1a1a; /* Nền header đen nhám */
+    background: var(--cb-header-bg);
     color: #fff; padding: 18px 20px;
     display: flex; align-items: center; gap: 12px;
     border-bottom: 2px solid var(--cb-primary);
 }
 #cb-header .cb-avatar {
-    width: 42px; height: 42px; border-radius: 50%;
-    background: rgba(255,255,255,0.1);
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(212, 175, 55, 0.1);
     display: flex; align-items: center; justify-content: center; font-size: 22px;
-    border: 1px solid rgba(212, 175, 55, 0.5);
+    border: 1px solid var(--cb-primary);
 }
 #cb-header .cb-info { display: flex; flex-direction: column; }
-#cb-header .cb-title { font-weight: 600; font-size: 1.1rem; letter-spacing: 0.5px; }
-#cb-header .cb-sub   { font-size: 0.8rem; opacity: 0.7; font-weight: 300;}
+#cb-header .cb-title { font-weight: 600; font-size: 1.15rem; color: var(--cb-primary); letter-spacing: 0.5px; }
+#cb-header .cb-sub   { font-size: 0.8rem; color: #aaa; font-weight: 300; margin-top: 2px;}
 #cb-close {
     margin-left: auto; background: transparent;
     border: none; color: #fff; border-radius: 50%; width: 32px; height: 32px;
     cursor: pointer; font-size: 20px; display: flex;
     align-items: center; justify-content: center; opacity: 0.6; transition: opacity 0.2s;
 }
-#cb-close:hover { opacity: 1; background: rgba(255,255,255,0.1); }
+#cb-close:hover { opacity: 1; color: var(--cb-primary); }
 
-/* Messages Area */
+/* ── Khu vực tin nhắn (Creamy Background) ── */
 #cb-messages {
     flex: 1; overflow-y: auto; padding: 20px; display: flex;
     flex-direction: column; gap: 16px; scroll-behavior: smooth;
-    background-color: #fafafa;
+    background-color: var(--cb-bg);
 }
 #cb-messages::-webkit-scrollbar { width: 6px; }
 #cb-messages::-webkit-scrollbar-track { background: transparent; }
-#cb-messages::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+#cb-messages::-webkit-scrollbar-thumb { background: #D6CFBE; border-radius: 10px; }
 
 .cb-msg { max-width: 85%; display: flex; flex-direction: column; gap: 4px; animation: fadeIn 0.3s ease-out forwards; opacity: 0; transform: translateY(10px); }
 @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
@@ -83,20 +123,26 @@
 .cb-msg.user { align-self: flex-end; }
 
 .cb-bubble {
-    padding: 12px 16px; font-size: 0.95rem; line-height: 1.5;
-    word-break: break-word; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    white-space: pre-wrap; /* Quan trọng: Giữ lại dấu xuống dòng */
+    padding: 14px 18px; font-size: 0.95rem; line-height: 1.6;
+    word-break: break-word; 
+    white-space: pre-wrap;
 }
+/* Tin nhắn Bot: Trắng sữa ngả Beige */
 .cb-msg.bot  .cb-bubble { 
-    background: var(--cb-msg-bot); color: var(--cb-text-main); 
-    border-radius: 18px 18px 18px 4px; border: 1px solid #eee;
+    background: var(--cb-msg-bot); 
+    color: var(--cb-text-main); 
+    border-radius: 18px 18px 18px 4px; 
+    border: 1px solid var(--cb-border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
 }
+/* Tin nhắn Khách hàng: Gradient Vàng Gold */
 .cb-msg.user .cb-bubble { 
     background: linear-gradient(135deg, var(--cb-primary), var(--cb-primary-dark)); 
-    color: #fff; border-radius: 18px 18px 4px 18px; 
+    color: #fff; 
+    border-radius: 18px 18px 4px 18px; 
+    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.2);
 }
 
-/* Thêm style cho thẻ strong trong bot bubble */
 .cb-msg.bot .cb-bubble strong {
     font-weight: 700;
     color: var(--cb-primary-dark);
@@ -104,44 +150,48 @@
 
 /* Typing indicator */
 .cb-typing .cb-bubble { display: flex; align-items: center; gap: 6px; padding: 14px 18px; }
-.cb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cb-text-light); animation: cb-bounce 1.4s infinite ease-in-out both; }
+.cb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cb-primary-dark); animation: cb-bounce 1.4s infinite ease-in-out both; }
 .cb-dot:nth-child(1) { animation-delay: -0.32s; }
 .cb-dot:nth-child(2) { animation-delay: -0.16s; }
 @keyframes cb-bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-/* Quick replies */
-#cb-quick { display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto; padding: 10px 20px; background: #fafafa; border-top: 1px solid #eee; }
-#cb-quick::-webkit-scrollbar { display: none; } /* Ẩn scrollbar ngang cho mượt */
+/* ── Gợi ý nhanh (Thanh viền mỏng Gold) ── */
+#cb-quick { 
+    display: flex; gap: 10px; flex-wrap: nowrap; overflow-x: auto; 
+    padding: 12px 20px; background: var(--cb-bg); border-top: 1px solid var(--cb-border); 
+}
+#cb-quick::-webkit-scrollbar { display: none; }
 .cb-quick-btn {
-    flex: 0 0 auto; /* Tránh bị co lại */
-    font-size: 0.85rem; padding: 8px 14px; border-radius: 20px;
+    flex: 0 0 auto;
+    font-size: 0.85rem; padding: 8px 16px; border-radius: 20px;
     border: 1px solid var(--cb-primary); color: var(--cb-primary-dark); background: transparent;
-    cursor: pointer; transition: all 0.2s ease; font-weight: 500;
+    cursor: pointer; transition: all 0.2s ease; font-weight: 600;
 }
 .cb-quick-btn:hover { background: var(--cb-primary); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(212, 175, 55, 0.2); }
 
-/* Input */
+/* ── Ô nhập liệu (Input) ── */
 #cb-input-row {
     display: flex; gap: 12px; padding: 16px 20px;
-    background: #fff; box-shadow: 0 -5px 15px rgba(0,0,0,0.02);
+    background: var(--cb-bg);
 }
 #cb-input {
-    flex: 1; border: 1px solid #e2e8f0; border-radius: 24px;
+    flex: 1; border: 1px solid var(--cb-border); border-radius: 24px;
     padding: 12px 18px; font-size: 0.95rem; outline: none;
-    transition: all 0.2s; background: #f8f9fa; color: var(--cb-text-main);
+    transition: all 0.2s; background: #fff; color: var(--cb-text-main);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
-#cb-input:focus { border-color: var(--cb-primary); background: #fff; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1); }
-#cb-input::placeholder { color: #a0aec0; }
+#cb-input:focus { border-color: var(--cb-primary); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15); }
+#cb-input::placeholder { color: var(--cb-text-light); }
 
 #cb-send {
     width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
-    background: var(--cb-primary); display: flex;
-    align-items: center; justify-content: center; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--cb-primary), var(--cb-primary-dark)); 
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     transition: all 0.2s; box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
 }
 #cb-send:hover { background: var(--cb-primary-dark); transform: scale(1.05); }
-#cb-send:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none; }
-#cb-send svg { width: 20px; height: 20px; fill: #fff; margin-left: 2px; /* Căn chỉnh nhẹ icon send */ }
+#cb-send:disabled { background: #D6CFBE; box-shadow: none; cursor: not-allowed; transform: none; }
+#cb-send svg { width: 20px; height: 20px; fill: #fff; margin-left: 2px; }
 </style>
 
 {{-- Toggle button --}}
@@ -152,10 +202,10 @@
 {{-- Chat panel --}}
 <div id="cb-panel" role="dialog" aria-label="Chatbot trợ lý">
     <div id="cb-header">
-                            <img src="{{ asset('images/logo.png') }}" alt="Món Việt Logo" style="height: 50px; width: auto; filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.5)); margin-right: -10px;">
+        <img src="{{ asset('images/logo.png') }}" alt="Món Việt Logo" style="height: 40px; width: auto; margin-right: -5px; margin-left: -5px;">
         <div>
-            <div class="cb-title">Trợ lý Nhà hàng</div>
-            <div class="cb-sub">Powered by AI</div>
+            <div class="cb-title">Trợ lý AI Nhà hàng</div>
+            <div class="cb-sub">Tinh hoa ẩm thực</div>
         </div>
         <button id="cb-close" aria-label="Đóng">✕</button>
     </div>
@@ -165,7 +215,6 @@
     <div id="cb-quick">
         <button class="cb-quick-btn" data-q="Xem thực đơn hôm nay">🍽 Thực đơn</button>
         <button class="cb-quick-btn" data-q="Đặt bàn như thế nào?">📅 Đặt bàn</button>
-        <!-- <button class="cb-quick-btn" data-q="Giờ mở cửa của nhà hàng?">🕐 Giờ mở cửa</button> -->
         <button class="cb-quick-btn" data-q="Liên hệ nhà hàng">📞 Liên hệ</button>
     </div>
 
@@ -176,7 +225,6 @@
         </button>
     </div>
 </div>
-
 <script>
 (function () {
     const panel    = document.getElementById('cb-panel');
@@ -188,27 +236,29 @@
     const ENDPOINT = '{{ route("chatbot.ask", [], false) }}';
     const CSRF     = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
-    let history = [];   // [{role:'user'|'model', text:'...'}]
+    // 🌟 THÊM: Đọc lịch sử từ bộ nhớ tạm của trình duyệt khi load trang
+    let history = JSON.parse(sessionStorage.getItem('aurora_chat_history')) || [];
     let busy    = false;
 
-    // Helpers
     function escHtml(s) {
         return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    // 🌟 ĐÃ SỬA HÀM NÀY ĐỂ XỬ LÝ IN ĐẬM VÀ XUỐNG DÒNG 🌟
     function addMsg(role, text) {
         const wrap = document.createElement('div');
         wrap.className = 'cb-msg ' + role;
         
         let formattedText = escHtml(text);
         
-        // Nếu là tin nhắn của bot, thực hiện format Markdown cơ bản
         if (role === 'bot') {
-            // Chuyển **chữ in đậm** thành thẻ <strong>
+            // 1. Chuyển Markdown hình ảnh thành thẻ <img>
+            formattedText = formattedText.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="cb-dish-img">');
+
+            // 2. Chuyển Markdown link thành nút bấm (Nút Đặt món/Xem chi tiết)
+            formattedText = formattedText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="cb-link-btn">$1</a>');
+
+            // 3. In đậm và xuống dòng
             formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
-            // Đổi dấu * đầu dòng thành dấu chấm tròn (•)
             formattedText = formattedText.replace(/(^|\n)\* /g, '$1• ');
         }
 
@@ -227,23 +277,34 @@
         return wrap;
     }
 
-    // Toggle open/close
+    // 🌟 THÊM: In lại lịch sử cũ ra khung chat nếu có
+    if (history.length > 0) {
+        history.forEach(item => {
+            const role = item.role === 'model' ? 'bot' : 'user';
+            addMsg(role, item.text);
+        });
+    }
+
     toggle.addEventListener('click', function () {
         const isOpen = panel.classList.toggle('open');
         if (isOpen && msgs.children.length === 0) {
-            addMsg('bot', 'Xin chào! 👋 Tôi là trợ lý AI của nhà hàng. Tôi có thể giúp bạn về thực đơn, đặt bàn và nhiều thông tin khác. Bạn cần hỗ trợ gì ạ?');
+            const greeting = 'Xin chào! 👋 Tôi là trợ lý AI của nhà hàng Aurora Garden. Bạn cần hỗ trợ xem thực đơn hay đặt bàn ạ?';
+            addMsg('bot', greeting);
+            
+            // 🌟 THÊM: Lưu câu chào vào lịch sử
+            history.push({ role: 'model', text: greeting });
+            sessionStorage.setItem('aurora_chat_history', JSON.stringify(history));
         }
     });
+
     closeBtn.addEventListener('click', function () { panel.classList.remove('open'); });
 
-    // Quick replies
     document.querySelectorAll('.cb-quick-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             if (!busy) send(btn.dataset.q);
         });
     });
 
-    // Enter key
     input.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' && !e.shiftKey && !busy) send(input.value);
     });
@@ -260,6 +321,9 @@
         const typing = addTyping();
 
         history.push({ role: 'user', text: text });
+        
+        // 🌟 THÊM: Lưu câu hỏi của khách hàng vào bộ nhớ
+        sessionStorage.setItem('aurora_chat_history', JSON.stringify(history));
 
         try {
             const res = await fetch(ENDPOINT, {
@@ -278,9 +342,7 @@
             try {
                 data = raw ? JSON.parse(raw) : {};
             } catch (parseErr) {
-                data = {
-                    error: 'Máy chủ trả về dữ liệu không hợp lệ. Vui lòng thử lại sau.'
-                };
+                data = { error: 'Máy chủ trả về dữ liệu không hợp lệ. Vui lòng thử lại sau.' };
             }
 
             typing.remove();
@@ -289,8 +351,11 @@
             addMsg('bot', reply);
             history.push({ role: 'model', text: reply });
 
-            // Giữ lịch sử tối đa 20 lượt
             if (history.length > 20) history = history.slice(-20);
+            
+            // 🌟 THÊM: Lưu câu trả lời của AI vào bộ nhớ
+            sessionStorage.setItem('aurora_chat_history', JSON.stringify(history));
+            
         } catch (err) {
             typing.remove();
             addMsg('bot', '⚠️ Không thể kết nối. Vui lòng kiểm tra mạng và thử lại.');

@@ -121,7 +121,7 @@ Route::get('/bills/{id}', [App\Http\Controllers\AdminBillController::class, 'sho
 Route::get('/reservations/create', [ReservationController::class, 'create'])->name('reservations.create');
 
 // Xử lý lưu dữ liệu khi submit form
-Route::post('/reservations/store', [ReservationController::class, 'store'])->name('reservations.store');
+Route::post('/reservations/store', [ReservationController::class, 'staffStore'])->name('reservations.store');
         // Quản lý thực đơn
         Route::prefix('menus')->name('menus.')->group(function () {
             Route::get('/', [AdminMenuController::class, 'index'])->name('index');
@@ -160,7 +160,7 @@ Route::get('/tables/{table}/edit', [TableController::class, 'edit'])->name('tabl
 Route::put('/tables/{table}', [TableController::class, 'update'])->name('tables.update');
         Route::get('/reservations/{id}/edit-items', [StaffOrderController::class, 'editItems'])->name('reservations.edit_items');
         Route::get('/reservations/create', [ReservationController::class, 'create'])->name('reservations.create');
-        Route::post('/reservations/store', [ReservationController::class, 'store'])->name('reservations.store');
+       Route::post('/reservations/store', [ReservationController::class, 'staffStore'])->name('reservations.store');
         Route::post('/reservations/{id}/update-items', [StaffOrderController::class, 'update'])->name('reservations.update_items');
         // Tạo & gửi đơn cho bếp
         Route::controller(StaffOrderController::class)->name('order.')->group(function () {

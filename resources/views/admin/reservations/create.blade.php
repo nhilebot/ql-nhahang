@@ -149,48 +149,68 @@
 
 <div class="admin-booking-container">
     <div class="form-container-custom">
-        <h2 class="form-title">Tạo đơn đặt bàn</h2>
+        <h2 class="form-title">Phục Vụ Tại Quầy (Walk-in)</h2>
 
         <form action="{{ route('admin.reservations.store') }}" method="POST">
             @csrf
             
+            <!-- Flag ẩn để Backend biết đây là khách đến trực tiếp -->
+            <input type="hidden" name="is_walk_in" value="1">
+
             <div class="input-grid-system">
                 <div class="input-group-custom">
-                    <span class="section-label">Ngày đặt bàn</span>
-                    <input type="date" name="reservation_date" class="input-custom" required>
+                    <span class="section-label">Họ và Tên (Không bắt buộc)</span>
+                    <input type="text" name="full_name" class="input-custom" placeholder="Khách vãng lai">
+                </div>
+                <div class="input-group-custom">
+                    <span class="section-label">Số điện thoại (Không bắt buộc)</span>
+                    <input type="tel" name="phone" class="input-custom" placeholder="Để trống nếu không có">
+                </div>
+                <div class="input-group-custom">
+                    <span class="section-label">Ngày đến</span>
+                    <input type="date" id="auto_date" name="reservation_date" class="input-custom" required readonly style="background-color: #f1f5f9;">
                 </div>
                 <div class="input-group-custom">
                     <span class="section-label">Giờ đến</span>
-                    <input type="time" name="reservation_time" class="input-custom" required>
-                </div>
-                <div class="input-group-custom">
-                    <span class="section-label">Họ và Tên</span>
-                    <input type="text" name="full_name" class="input-custom" placeholder="Tên khách hàng" required>
-                </div>
-                <div class="input-group-custom">
-                    <span class="section-label">Số điện thoại</span>
-                    <input type="tel" name="phone" class="input-custom" placeholder="SĐT liên lạc" required>
+                    <input type="time" id="auto_time" name="reservation_time" class="input-custom" required readonly style="background-color: #f1f5f9;">
                 </div>
             </div>
 
             <div style="text-align: center; margin-top: 30px;">
-                <span class="section-label">Lựa Chọn Vị Trí Bàn</span>
+                <span class="section-label">Lựa Chọn Vị Trí Bàn (Bắt buộc)</span>
                 <div class="table-selection-grid">
                     @foreach($tables as $table)
                     <div class="table-item">
                         <input type="radio" name="table_id" value="{{ $table->id }}" id="table{{ $table->id }}" 
-                               {{ $table->status !== 'empty' ? 'disabled' : '' }}>
-                        <label for="table{{ $table->id }}">
-                            <strong>{{ $table->name }}</strong>
-                            <small>{{ $table->status === 'empty' ? '(Sẵn sàng)' : '(Đã đặt)' }}</small>
-                        </label>
+                               {{ $table->status !== 'empty' ? 'disabled' : '' }} required>
+                        <label for="table{{ $table->id }}" id="label-{{ $table->id }}">
+    <strong>{{ $table->name }}</strong>
+    <div id="status-text-{{ $table->id }}">
+        @if($table->status === 'empty')
+            <small style="color: #D4AF37;">(Sẵn sàng)</small>
+        @elseif($table->status === 'cleaning')
+            @php
+                // Ép kiểu chắc chắn để tránh lỗi null
+                $cleanupTime = $table->cleanup_started_at ? \Carbon\Carbon::parse($table->cleanup_started_at) : now();
+                $secondsPassed = $cleanupTime->diffInSeconds(now());
+                $secondsLeft = 60 - $secondsPassed;
+                $secondsLeft = $secondsLeft > 0 ? $secondsLeft : 0;
+            @endphp
+            <small style="color: #e74c3c;" class="cleaning-wrapper" data-id="{{ $table->id }}" data-left="{{ $secondsLeft }}">
+                🧹 Dọn dẹp (<span id="timer-{{ $table->id }}">{{ $secondsLeft }}</span>s)
+            </small>
+        @else
+            <small style="color: #999;">(Đã đặt)</small>
+        @endif
+    </div>
+</label>
                     </div>
                     @endforeach
                 </div>
             </div>
 
             <button type="button" class="btn-food-trigger" onclick="document.getElementById('foodMenuModal').style.display='block'">
-                🍴 KHÁM PHÁ & CHỌN MÓN ĂN TRƯỚC
+                🍴 GỌI MÓN CHO KHÁCH (TÙY CHỌN)
             </button>
 
             <div id="admin-cart-display" style="display:none; margin-top: 20px; padding: 25px; background: #FDFBF7; border-radius: 12px; border: 1px solid #EAEAEA;">
@@ -199,7 +219,7 @@
                 <div id="hidden-food-inputs"></div>
             </div>
 
-            <button type="submit" class="btn-reserve-final">Hoàn tất đặt bàn cho khách</button>
+            <button type="submit" class="btn-reserve-final">Mở Bàn Ngay</button>
         </form>
     </div>
 </div>
@@ -208,7 +228,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" style="border-radius: 15px; border: none; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.3);">
             <div class="modal-luxury-header" style="background: #1A2228; color: #D4AF37; padding: 18px 25px; display: flex; justify-content: space-between; align-items: center;">
-                <h5 style="font-family: 'Playfair Display', serif; font-size: 22px; margin: 0;">Thực Đơn Tinh Hoa</h5>
+                <h5 style="font-family: 'Playfair Display', serif; font-size: 22px; margin: 0;">Gọi Món Nhanh</h5>
                 <button type="button" style="background:none; border:none; color:#fff; font-size:25px; cursor:pointer;" onclick="document.getElementById('foodMenuModal').style.display='none'">&times;</button>
             </div>
             <div class="modal-body" style="background: #FAFAFA; max-height: 60vh; overflow-y: auto; padding: 20px;">
@@ -227,7 +247,7 @@
                 </div>
             </div>
             <div class="modal-footer" style="background: #FFF; border-top: 1px solid #eee; padding: 15px 25px; text-align: right;">
-                <button type="button" style="background: #D4AF37; color: #fff; border: none; padding: 10px 40px; border-radius: 8px; font-weight: 700; cursor: pointer;" onclick="document.getElementById('foodMenuModal').style.display='none'">XÁC NHẬN</button>
+                <button type="button" style="background: #D4AF37; color: #fff; border: none; padding: 10px 40px; border-radius: 8px; font-weight: 700; cursor: pointer;" onclick="document.getElementById('foodMenuModal').style.display='none'">XONG</button>
             </div>
         </div>
     </div>
@@ -236,10 +256,25 @@
 <div id="toast-msg"></div>
 
 <script>
-    // Khai báo biến giỏ hàng
+    // --- Tự động điền Ngày & Giờ hiện tại cho khách tại quầy ---
+    document.addEventListener("DOMContentLoaded", function() {
+        const now = new Date();
+        
+        // Format YYYY-MM-DD
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        document.getElementById('auto_date').value = `${year}-${month}-${day}`;
+        
+        // Format HH:MM
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('auto_time').value = `${hours}:${minutes}`;
+    });
+
+    // --- Quản lý giỏ hàng ---
     var adminCart = [];
 
-    // Gắn hàm vào window để HTML onclick luôn nhận được
     window.adminAddFood = function(id, name) {
         var exist = adminCart.find(function(f) { return f.id === id; });
         if(exist) {
@@ -250,7 +285,6 @@
 
         renderAdminCart();
 
-        // Hiển thị thông báo Toast
         var toast = document.getElementById('toast-msg');
         if(toast) {
             toast.innerText = "✔️ Đã thêm: " + name;

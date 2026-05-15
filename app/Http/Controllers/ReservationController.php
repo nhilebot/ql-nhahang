@@ -240,32 +240,95 @@ class ReservationController extends Controller
 
     public function staffStore(Request $request)
     {
-        $request->validate([
-            'full_name'        => 'required|string|max:255',
-            'phone'            => 'required|string|max:20',
-            'reservation_date' => 'required|date|after_or_equal:today',
+        // 1. Kiểm tra xem có phải khách đến trực tiếp (Walk-in) hay không
+        $isWalkIn = $request->has('is_walk_in');
+
+        // 2. Validate dữ liệu linh hoạt
+        $rules = [
+            'reservation_date' => 'required|date',
             'reservation_time' => 'required',
             'table_id'         => 'required|integer',
-        ]);
+        ];
 
-        $reservation                   = new Reservation();
-        $reservation->user_id          = auth()->id();
-        $reservation->full_name        = $request->full_name;
-        $reservation->email            = auth()->user()->email;
-        $reservation->phone            = $request->phone;
+        // Chỉ bắt buộc tên và SĐT nếu KHÔNG phải khách Walk-in
+        if (!$isWalkIn) {
+            $rules['full_name'] = 'required|string|max:255';
+            $rules['phone']     = 'required|string|max:20';
+            $rules['reservation_date'] .= '|after_or_equal:today';
+        }
+
+        $request->validate($rules);
+
+        // 3. Xử lý mảng món ăn nhân viên gọi trực tiếp từ form
+        $cartData = [];
+        $totalAmount = 0;
+
+        if ($request->has('foods')) {
+            foreach ($request->foods as $foodId => $details) {
+                $menu = \App\Models\Menu::find($foodId);
+                if ($menu) {
+                    $qty = (int) $details['quantity'];
+                    $subTotal = $menu->price * $qty;
+                    $totalAmount += $subTotal;
+                    
+                    $cartData[] = [
+                        'id'       => $menu->id,
+                        'name'     => $menu->name,
+                        'price'    => $menu->price,
+                        'quantity' => $qty,
+                        'image'    => $menu->image,
+                    ];
+                }
+            }
+        }
+
+        // 4. Lưu dữ liệu Đặt bàn (Reservation)
+        $reservation                   = new \App\Models\Reservation();
+        $reservation->user_id          = auth()->id(); // ID của nhân viên tạo đơn
+        $reservation->full_name        = $request->full_name ?? 'Khách vãng lai';
+        $reservation->email            = auth()->user()->email ?? null;
+        $reservation->phone            = $request->phone ?? null;
         $reservation->reservation_date = $request->reservation_date;
         $reservation->reservation_time = $request->reservation_time;
         $reservation->table_id         = $request->table_id;
         $reservation->notes            = $request->notes;
-        $reservation->status           = 'confirmed';
+        
+        // Trạng thái: Walk-in thì 'serving' (đang phục vụ), Đặt trước thì 'confirmed'
+        $reservation->status = $isWalkIn ? 'arrived' : 'confirmed'; 
         $reservation->payment_status   = 'unpaid';
-        $reservation->total_price      = 0;
-        $reservation->cart_data        = [];
+        $reservation->total_price      = $totalAmount;
+        $reservation->cart_data        = $cartData; 
         $reservation->save();
 
-        Table::where('id', $request->table_id)->update(['status' => 'reserved']);
+        // 5. Cập nhật trạng thái Bàn
+        $tableStatus = $isWalkIn ? 'occupied' : 'reserved';
+        \App\Models\Table::where('id', $request->table_id)->update(['status' => $tableStatus]);
 
-        return redirect()->route('staff.reservations.index')->with('success', 'Đã tạo đặt bàn thành công!');
+        // =========================================================
+        // 6. TỰ ĐỘNG TẠO HÓA ĐƠN (ORDER) NẾU CÓ GỌI MÓN (Dành cho Walk-in)
+        // =========================================================
+        if ($isWalkIn && count($cartData) > 0) {
+            // Tạo Hóa đơn chuyển xuống Bếp & Thu ngân
+            $order = \App\Models\Order::create([
+                'user_id'      => auth()->id(),
+                'table_number' => $request->table_id,
+                'total_price'  => $totalAmount,
+                'status'       => 'pending', // 'pending' để Bếp biết có món mới cần làm
+            ]);
+
+            // Tạo chi tiết các món trong Hóa đơn
+            foreach ($cartData as $item) {
+                \App\Models\OrderItem::create([
+                    'order_id'     => $order->id,
+                    'menu_id'      => $item['id'],
+                    'product_name' => $item['name'],
+                    'quantity'     => $item['quantity'],
+                    'price'        => $item['price'],
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.reservations.index')->with('success', 'Đã mở bàn và chuyển Order xuống bếp thành công!');
     }
 
     public function editItems($id)
@@ -328,16 +391,27 @@ class ReservationController extends Controller
 
         return redirect()->route('staff.reservations.index')->with('success', 'Đã lưu thay đổi thực đơn!');
     }
-   public function create()
-{
-    // 1. Lấy danh sách bàn (đã có)
-    $tables = \App\Models\Table::all();
+  public function create()
+    {
+        // 1. ĐỒNG BỘ LOGIC DỌN BÀN: 
+        // Tìm các bàn đang ở trạng thái 'cleaning' mà đã trôi qua 1 phút (60 giây)
+        $expiredTables = \App\Models\Table::where('status', 'cleaning')
+            ->where('cleanup_started_at', '<=', now()->subMinutes(1))
+            ->get();
 
-    // 2. BỔ SUNG: Lấy danh sách món ăn để hiển thị trong Modal chọn món
-    $menus = \App\Models\Menu::all(); 
+        // Tự động chuyển các bàn đó về trạng thái 'empty' (Sẵn sàng)
+        foreach ($expiredTables as $table) {
+            $table->update([
+                'status' => 'empty',
+                'cleanup_started_at' => null
+            ]);
+        }
 
-    // 3. Truyền cả 2 biến sang View
-    return view('admin.reservations.create', compact('tables', 'menus'));
-    // Hoặc 'staff.reservations.create' tùy theo file của bạn
-}
+        // 2. Sau khi đã làm mới trạng thái, mới tiến hành lấy danh sách Bàn và Menu
+        $tables = \App\Models\Table::all();
+        $menus = \App\Models\Menu::all(); 
+
+        // 3. Gọi đúng file giao diện của Admin/Staff (file vừa được gắn code đếm ngược)
+        return view('admin.reservations.create', compact('tables', 'menus'));
+    }
 }

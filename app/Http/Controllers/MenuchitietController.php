@@ -75,11 +75,20 @@ class MenuchitietController extends Controller
 
     public function showDetail($id)
     {
-        // Thêm where('status', 1) để nếu món đã ngừng bán, sẽ trả về lỗi 404 (Không tìm thấy)
+        // 1. Lấy thông tin món đang xem
         $menu = Menu::with(['comments.user'])
                     ->where('status', 1)
                     ->findOrFail($id);
                     
-        return view('detail', compact('menu'));
+        // 2. Lấy 4 món liên quan (Ưu tiên cùng danh mục)
+        $relatedMenus = Menu::where('category', $menu->category)
+                    ->where('id', '!=', $id) // Bỏ qua món đang xem
+                    ->where('status', 1)
+                    ->inRandomOrder()
+                    ->limit(4)
+                    ->get();
+
+        // 3. Trả về đúng view 'detail' và nhét cả 2 biến vào
+        return view('detail', compact('menu', 'relatedMenus'));
     }
 }

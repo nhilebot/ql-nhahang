@@ -32,7 +32,7 @@ class ChatbotController extends Controller
                 return [
                     'reply' => $reply,
                     'model' => $model,
-                    'data' => $data,
+                    'data'  => $data,
                 ];
             }
 
@@ -46,7 +46,7 @@ class ChatbotController extends Controller
         return [
             'reply' => null,
             'model' => null,
-            'data' => $lastData,
+            'data'  => $lastData,
         ];
     }
 
@@ -172,13 +172,11 @@ class ChatbotController extends Controller
         );
     }
 
-    // 🔥 HÀM QUAN TRỌNG CHO CHATBOX
-    // 🔥 HÀM QUAN TRỌNG CHO CHATBOX ĐÃ ĐƯỢC CẬP NHẬT ĐỂ ĐỌC DATABASE
     public function ask(Request $request)
     {
         $message = trim((string) $request->input('message'));
         $history = $request->input('history', []);
-        $apiKey = trim((string) env('GEMINI_API_KEY'));
+        $apiKey  = trim((string) env('GEMINI_API_KEY'));
 
         if ($message === '') {
             return response()->json([
@@ -188,29 +186,46 @@ class ChatbotController extends Controller
 
         if ($apiKey === '') {
             return response()->json([
-                'reply' => $this->fallbackReply($message),
+                'reply'    => $this->fallbackReply($message),
                 'fallback' => true,
             ]);
         }
 
-        // 1. Lấy dữ liệu thực đơn từ bảng 'menus' (chỉ lấy món đang mở bán: status = 1)
+        // 1. Lấy dữ liệu thực đơn từ bảng 'menus'
         $menus = \Illuminate\Support\Facades\DB::table('menus')
             ->where('status', 1)
-            ->get(['name', 'price', 'description']);
+            ->get(['id', 'name', 'price', 'description', 'image']);
 
         // 2. Chuyển đổi dữ liệu thành chuỗi văn bản cho AI đọc
         $menuContext = "DANH SÁCH THỰC ĐƠN CỦA NHÀ HÀNG (Giá VNĐ):\n";
         foreach ($menus as $item) {
             $priceFormatted = number_format($item->price, 0, ',', '.');
             $desc = $item->description ? " - " . $item->description : "";
-            $menuContext .= "- Món {$item->name}: {$priceFormatted}đ{$desc}\n";
+            
+            // Lấy tên file ảnh và tạo link hình ảnh
+            $fileName = basename($item->image); 
+            $imageUrl = asset('images/' . $fileName); 
+            
+            // Tạo link dẫn tới trang chi tiết của món ăn
+            // LƯU Ý QUAN TRỌNG: Hãy đảm bảo '/mon-an/' khớp với route thực tế trên website của bạn
+            $detailUrl = url('/chi-tiet-mon-an/' . $item->id); 
+            
+            $menuContext .= "- Món {$item->name}: {$priceFormatted}đ{$desc} | Link ảnh: {$imageUrl} | Link chi tiết: {$detailUrl}\n";
         }
 
-        // 3. Tạo System Prompt ép AI phải đọc menu
+        // 3. Tạo System Prompt (HƯỚNG DẪN BOT HIỂN THỊ LINK BẤM CÙNG VỚI ẢNH)
+        // 3. Tạo System Prompt (HƯỚNG DẪN BOT CHUYỂN HƯỚNG ĐẶT BÀN)
         $systemPrompt = "Bạn là trợ lý AI lễ tân của nhà hàng cao cấp Aurora Garden. "
             . "Hãy trả lời bằng tiếng Việt, lịch sự, thân thiện và đúng trọng tâm. "
             . "BẮT BUỘC phải dựa vào danh sách thực đơn dưới đây để tư vấn cho khách. "
-            . "TUYỆT ĐỐI KHÔNG TỰ BỊA RA MÓN ĂN NGOÀI DANH SÁCH NÀY. Nếu khách hỏi món không có, hãy xin lỗi và gợi ý món khác trong thực đơn.\n\n"
+            . "TUYỆT ĐỐI KHÔNG TỰ BỊA RA MÓN ĂN NGOÀI DANH SÁCH NÀY. Nếu khách hỏi món không có, hãy xin lỗi và gợi ý món khác.\n\n"
+            . "🌟 QUAN TRỌNG SỐ 1: Khi khách yêu cầu xem một món ăn, bạn PHẢI làm 2 việc:\n"
+            . "1. Hiển thị hình ảnh của món đó bằng cú pháp Markdown: ![Tên món](Link ảnh)\n"
+            . "2. Cung cấp đường link để khách click vào xem chi tiết bằng cú pháp Markdown: [👉 Xem chi tiết và Đặt món](Link chi tiết)\n\n"
+            . "🌟 QUAN TRỌNG SỐ 2 (ĐẶT BÀN): Khi khách hàng có nhu cầu đặt bàn (Ví dụ: 'tôi muốn đặt bàn', 'cho tôi đặt chỗ', 'đặt bàn như nào'), bạn BẮT BUỘC phải cung cấp đường link dẫn tới trang đặt bàn chính thức của nhà hàng bằng cú pháp Markdown: [👉 Nhấp vào đây để Chọn bàn và Đặt chỗ](/reservation)\n"
+            . "Ví dụ cách trả lời:\n"
+            . "Dạ vâng, Aurora Garden rất hân hạnh được đón tiếp quý khách. Để chọn vị trí ngồi ưng ý và đặt trước món ăn, quý khách vui lòng thao tác trực tiếp tại đây nhé:\n"
+            . "[👉 Nhấp vào đây để Chọn bàn và Đặt chỗ](/reservation)\n\n"
             . $menuContext;
 
         // 4. Gửi lên Gemini
@@ -233,8 +248,8 @@ class ChatbotController extends Controller
         }
 
         return response()->json([
-            'reply' => is_array($result['data']) ? $this->providerErrorReply($result['data'], $message) : $this->fallbackReply($message),
-            'fallback' => true,
+            'reply'          => is_array($result['data']) ? $this->providerErrorReply($result['data'], $message) : $this->fallbackReply($message),
+            'fallback'       => true,
             'provider_error' => $result['data'],
         ]);
     }

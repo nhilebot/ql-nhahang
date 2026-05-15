@@ -503,9 +503,9 @@
 
         <a class="nav-item {{ (Request::is('admin') && !Request::is('admin/*')) ? 'active' : '' }}" href="{{ route('admin.index') }}">
           <div class="nav-item-left"><div class="nav-icon">📊</div>Bảng điều khiển</div>
-          <span class="nav-arrow">›</span>
+          <!-- <span class="nav-arrow">›</span> -->
         </a>
-
+      <div class="sidebar-section-label">Quản lý thực đơn</div>
         <div>
           <a class="nav-item {{ Request::routeIs('admin.categories.*') ? 'active' : '' }}" href="#" onclick="toggleSub(event,'cat-sub',this)">
             <div class="nav-item-left"><div class="nav-icon">📁</div>Danh mục</div>
@@ -527,6 +527,7 @@
             <a class="sub-item {{ Request::routeIs('admin.menus.create')?'active':'' }}" href="{{ route('admin.menus.create') }}">+ Thêm món ăn</a>
           </div>
         </div>
+      <div class="sidebar-section-label">Quản lý bàn</div>
 
         <div>
           <a class="nav-item {{ Request::routeIs('admin.tables.*') ? 'active' : '' }}" href="#" onclick="toggleSub(event,'table-sub',this)">
@@ -541,16 +542,18 @@
 
         <a class="nav-item {{ Request::routeIs('admin.reservations.*') ? 'active' : '' }}" href="{{ route('admin.reservations.index') }}">
           <div class="nav-item-left"><div class="nav-icon">📅</div>Đặt bàn & Phục vụ</div>
-          <span class="nav-arrow">›</span>
+          <!-- <span class="nav-arrow">›</span> -->
         </a>
+        <div class="sidebar-section-label">Lịch sử hóa đơn</div>
       <a class="nav-item {{ Request::routeIs('admin.bills.*') ? 'active' : '' }}"
    href="{{ route('admin.bills.index') }}">
   <div class="nav-item-left">
       <div class="nav-icon">🧾</div>Quản lý hóa đơn
   </div>
-  <span class="nav-arrow">›</span>
+  <!-- <span class="nav-arrow">›</span> -->
 </a>
         <div>
+          <div class="sidebar-section-label">Người dùng</div>
           <a class="nav-item {{ Request::routeIs('admin.employees.*') ? 'active' : '' }}"
              href="#" onclick="toggleSub(event,'emp-sub',this)">
             <div class="nav-item-left"><div class="nav-icon">👥</div>Quản lý nhân viên</div>

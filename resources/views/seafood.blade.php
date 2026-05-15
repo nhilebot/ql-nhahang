@@ -156,7 +156,14 @@
     }
 
     .btn-detail-red { background-color: #e74c3c; color: white !important; }
-    .btn-add-green { background-color: #27ae60; color: white !important; }
+    .btn-add-green {
+    background-color: transparent;
+    /* color: #27ae60 !important; */
+    border: 1px solid #B5952F;
+    color: #B5952F;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+}
 
     /* NHÃN TRANG TRÍ ĐỒNG BỘ */
     .badge-creative {
@@ -246,14 +253,17 @@
         color: white !important; 
     }
 
-    .btn-add-green { 
-        background-color: transparent; 
-        color: #27ae60 !important; 
-        border: 1px solid #27ae60;
-    }
+    .btn-add-green {
+    background-color: transparent;
+    /* color: #27ae60 !important; */
+    border: 1px solid #B5952F;
+    color: #B5952F;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+}
     
     .btn-add-green:hover {
-        background-color: #27ae60;
+        background-color: #B5952F;
         color: white !important;
     }
 
