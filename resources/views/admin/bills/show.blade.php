@@ -86,21 +86,21 @@
             </tr>
         </thead>
 
-        <tbody>
-
-            @forelse($bill->orderItems as $item)
+      <tbody>
+            {{-- Đổi vòng lặp từ orderItems sang đọc trực tiếp từ cart_data --}}
+            @forelse($bill->cart_data ?? [] as $item)
 
             <tr>
-                <td>{{ $item->menu->name ?? $item->product_name ?? '---' }}</td>
+                <td>{{ $item['name'] ?? '---' }}</td>
 
-                <td>{{ $item->quantity }}</td>
+                <td>{{ $item['quantity'] }}</td>
 
                 <td>
-                    {{ number_format($item->price) }}đ
+                    {{ number_format($item['price']) }}đ
                 </td>
 
                 <td>
-                    {{ number_format($item->quantity * $item->price) }}đ
+                    {{ number_format($item['quantity'] * $item['price']) }}đ
                 </td>
             </tr>
 
