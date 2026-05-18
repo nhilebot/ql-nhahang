@@ -258,7 +258,13 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <label class="label-custom">Ngày đặt bàn</label>
-                                <input type="date" name="reservation_date" class="form-control input-custom" required>
+                                <input 
+    type="date" 
+    name="reservation_date" 
+    class="form-control input-custom"
+    min="{{ date('Y-m-d') }}"
+    required
+>
                             </div>
                             <div class="col-md-6">
                                 <label class="label-custom">Giờ đến</label>
@@ -639,57 +645,75 @@
         }
 
         $(document).ready(function () {
-            renderMenu();
-            updateCartUI();
-            
-            $('#foodMenuModal').modal({
-                backdrop: 'static',
-                keyboard: false,
-                show: false
-            });
-            
-            $('#openFoodModalBtn').on('click', function(e) {
-                e.preventDefault();
-                $('#foodMenuModal').modal('show');
-            });
+    renderMenu();
+    updateCartUI();
 
-            $('#reservation-form').on('submit', function(e) {
-                e.preventDefault(); 
-                
-                if (!$('input[name="table_id"]:checked').val()) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Chưa Chọn Bàn',
-                        text: 'Quý khách vui lòng chọn vị trí bàn mong muốn trước khi hoàn tất.',
-                        confirmButtonColor: '#1A2228',
-                        iconColor: '#D4AF37'
-                    });
-                    return;
-                }
+    $('#foodMenuModal').modal({
+        backdrop: 'static',
+        keyboard: false,
+        show: false
+    });
 
-                const form = this; // ✅ LƯU LẠI FORM ELEMENT
-                
-                // ✅ KIỂM TRA DỮ LIỆU TRƯỚC KHI GỬI
-                console.log('=== Form Submission Debug ===');
-                console.log('Form name:', $('input[name="full_name"]').val());
-                console.log('Form table_id:', $('input[name="table_id"]:checked').val());
-                console.log('Form date:', $('input[name="reservation_date"]').val());
-                console.log('Form time:', $('input[name="reservation_time"]').val());
-                console.log('Hidden inputs:', $('#hidden-inputs-container').html());
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đặt Bàn Thành Công!',
-                    text: 'Yêu cầu của quý khách đã được ghi nhận. Nhà hàng đang chuẩn bị chu đáo nhất...',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    iconColor: '#D4AF37'
-                }).then(() => {
-                    form.submit(); // ✅ SỬ DỤNG FORM ĐÃ LƯU
-                });
+    $('#openFoodModalBtn').on('click', function(e) {
+        e.preventDefault();
+        $('#foodMenuModal').modal('show');
+    });
+
+    // ===== SUBMIT FORM ĐẶT BÀN =====
+    $('#reservation-form').on('submit', function(e) {
+        e.preventDefault();
+
+        // ===== KIỂM TRA NGÀY ĐẶT =====
+        const selectedDate = $('input[name="reservation_date"]').val();
+        const today = new Date().toISOString().split('T')[0];
+
+        if (selectedDate < today) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Ngày không hợp lệ',
+                text: 'Không thể đặt bàn ở ngày đã qua!',
+                confirmButtonColor: '#1A2228',
+                iconColor: '#e74c3c'
             });
+            return;
+        }
+
+        // ===== KIỂM TRA CHỌN BÀN =====
+        if (!$('input[name="table_id"]:checked').val()) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Chưa Chọn Bàn',
+                text: 'Quý khách vui lòng chọn vị trí bàn mong muốn trước khi hoàn tất.',
+                confirmButtonColor: '#1A2228',
+                iconColor: '#D4AF37'
+            });
+            return;
+        }
+
+        const form = this;
+
+        // ===== DEBUG =====
+        console.log('=== Form Submission Debug ===');
+        console.log('Form name:', $('input[name="full_name"]').val());
+        console.log('Form table_id:', $('input[name="table_id"]:checked').val());
+        console.log('Form date:', $('input[name="reservation_date"]').val());
+        console.log('Form time:', $('input[name="reservation_time"]').val());
+        console.log('Hidden inputs:', $('#hidden-inputs-container').html());
+
+        // ===== THÔNG BÁO THÀNH CÔNG =====
+        Swal.fire({
+            icon: 'success',
+            title: 'Đặt Bàn Thành Công!',
+            text: 'Yêu cầu của quý khách đã được ghi nhận. Nhà hàng đang chuẩn bị chu đáo nhất...',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            iconColor: '#D4AF37'
+        }).then(() => {
+            form.submit();
         });
+    });
+});
     </script>
 @endsection
 <script>

@@ -229,77 +229,114 @@ public function getCart()
 /**
      * 4. THANH TOÁN (Xử lý chốt đơn cuối cùng)
      */
- public function checkout(Request $request)
-{
-    $userId = auth()->id();
+/**
+     * 4. THANH TOÁN (Xử lý chốt đơn cuối cùng)
+     */
+    public function checkout(Request $request)
+    {
+        $userId = auth()->id();
 
-    // 1. Lấy giỏ hàng từ DATABASE
-    $cartItems = \App\Models\Cart::with('menu')
-        ->where('user_id', $userId)
-        ->get();
+        // 1. LẤY GIỎ HÀNG TỪ DATABASE ĐỂ KIỂM TRA ĐẦU VÀO
+        $cartItems = \App\Models\Cart::with('menu')
+            ->where('user_id', $userId)
+            ->get();
 
-    if ($cartItems->isEmpty()) {
-        return redirect()->back()->with('error', 'Giỏ hàng của bạn đang trống.');
-    }
-
-    // 🔥 2. KIỂM TRA TỒN KHO (STOCK) TRƯỚC KHI XỬ LÝ
-    foreach ($cartItems as $item) {
-        if (!$item->menu || $item->quantity > $item->menu->stock) {
-            $stockAvailable = $item->menu->stock ?? 0;
-            return redirect()->back()->with('error', "Món '{$item->menu->name}' hiện không đủ số lượng (Chỉ còn {$stockAvailable} phần). Vui lòng điều chỉnh lại giỏ hàng.");
+        if ($cartItems->isEmpty()) {
+            return redirect()->back()->with('error', 'Giỏ hàng của bạn đang trống.');
         }
-    }
 
-    // 3. Tính tổng tiền
-    $totalAmount = 0;
-    foreach ($cartItems as $item) {
-        $totalAmount += ($item->menu->price ?? 0) * $item->quantity;
-    }
+        // 2. KIỂM TRA TỒN KHO (STOCK) TRƯỚC KHI XỬ LÝ
+        foreach ($cartItems as $item) {
+            if (!$item->menu || $item->quantity > $item->menu->stock) {
+                $stockAvailable = $item->menu->stock ?? 0;
+                return redirect()->back()->with('error', "Món '{$item->menu->name}' hiện không đủ số lượng (Chỉ còn {$stockAvailable} phần). Vui lòng điều chỉnh lại giỏ hàng.");
+            }
+        }
 
-    // 4. Lấy phương thức thanh toán & Tạo mã đơn hàng
-    $pm = $request->input('payment_method');
-    $orderCode = (string)rand(100000, 999999);
+        // 3. Tính tổng tiền từ dữ liệu giỏ hàng thực tế
+        $totalAmount = 0;
+        foreach ($cartItems as $item) {
+            $totalAmount += ($item->menu->price ?? 0) * $item->quantity;
+        }
 
-    // 5. Lấy TABLE_ID từ RESERVATION
-    $latestReservation = \App\Models\Reservation::where('user_id', $userId)
-        ->latest()
-        ->first();
-    $tableId = $latestReservation->table_id ?? null;
+        // 4. Lấy phương thức thanh toán & Tạo mã đơn hàng ngẫu nhiên
+        $pm = $request->input('payment_method', 'COD');
+        $orderCode = (string)rand(100000, 999999);
 
-    // 6. Tạo Order
-    $order = \App\Models\Order::create([
-        'user_id'         => $userId,
-        'code'            => $orderCode,
-        'total_price'     => $totalAmount,
-        'status'          => ($pm == 'BANK') ? 'paid' : 'pending',
-        'payment_method'  => $pm,
-        'table_number'    => $tableId,
-        'name'            => auth()->user()->name,
-        'phone'           => auth()->user()->phone,
-        'notes'           => $request->order_notes ?? null,
-    ]);
+        // 5. Lấy TABLE_ID từ RESERVATION gần nhất
+        $latestReservation = \App\Models\Reservation::where('user_id', $userId)
+            ->latest()
+            ->first();
+        $tableId = $latestReservation->table_id ?? null;
 
-    // 7. Lưu OrderItem & 🔥 TRỪ TỒN KHO TRONG DATABASE
-    foreach ($cartItems as $item) {
-        // Lưu chi tiết đơn hàng
-        \App\Models\OrderItem::create([
-            'order_id'     => $order->id,
-            'menu_id'      => $item->menu_id,
-            'quantity'     => $item->quantity,
-            'price'        => $item->menu->price ?? 0,
-            'product_name' => $item->menu->name ?? '',
+        // 6. XÁC ĐỊNH TRẠNG THÁI ĐƠN HÀNG BAN ĐẦU THEO NGHIỆP VỤ
+        // Nếu chọn chuyển khoản BANK -> Chờ thanh toán (pending_payment)
+        // Nếu chọn trả tại bàn COD -> Chờ duyệt món (pending)
+        $orderStatus = ($pm === 'BANK') ? 'pending_payment' : 'pending';
+
+        // 7. Tạo bản ghi Đơn hàng (Order) vào Database
+        $order = \App\Models\Order::create([
+            'user_id'         => $userId,
+            'code'            => $orderCode,
+            'total_price'     => $totalAmount,
+            'status'          => $orderStatus,
+            'payment_method'  => $pm,
+            'table_number'    => $tableId,
+            'name'            => auth()->user()->name,
+            'phone'           => auth()->user()->phone,
+            'notes'           => $request->order_notes ?? null,
         ]);
 
-        // Cập nhật giảm số lượng trong bảng menus
-        $item->menu->decrement('stock', $item->quantity);
+        // 8. Lưu OrderItem & TRỪ TỒN KHO TRONG DATABASE VẬT LÝ
+        $cartToEmail = []; // Chuẩn bị mảng dữ liệu sạch phục vụ gửi Mail
+        foreach ($cartItems as $item) {
+            \App\Models\OrderItem::create([
+                'order_id'     => $order->id,
+                'menu_id'      => $item->menu_id,
+                'quantity'     => $item->quantity,
+                'price'        => $item->menu->price ?? 0,
+                'product_name' => $item->menu->name ?? '',
+            ]);
+
+            // Cập nhật giảm số lượng hàng tồn kho của món ăn
+            $item->menu->decrement('stock', $item->quantity);
+
+            // Gom thông tin món phục vụ cấu trúc Mail nhận dữ liệu
+            $cartToEmail[] = [
+                'name'     => $item->menu->name ?? '',
+                'quantity' => $item->quantity,
+                'price'    => $item->menu->price ?? 0,
+                'total'    => ($item->menu->price ?? 0) * $item->quantity
+            ];
+        }
+
+        // 9. GỬI MAIL THEO PHƯƠNG THỨC THANH TOÁN ĐÃ CHỌN
+        $mailData = [
+            'invoice' => $order->code,
+            'total'   => $order->total_price,
+            'table'   => $order->table_number,
+            'cart'    => $cartToEmail
+        ];
+
+        if ($pm === 'COD') {
+            // Thanh toán tại bàn -> Gửi mail xác nhận thông tin đặt món ngay lập tức
+            try {
+                \Illuminate\Support\Facades\Mail::to(auth()->user()->email)->send(new \App\Mail\OrderConfirmed($mailData));
+            } catch (\Exception $e) {
+                \Log::error('Gửi mail đơn hàng COD thất bại: ' . $e->getMessage());
+            }
+            $successMessage = 'Thanh toán tại bàn được ghi nhận! Đơn hàng đã được chuyển tới nhà bếp.';
+        } else {
+            // Chuyển khoản QR ngân hàng -> KHÔNG gửi mail tại đây, chờ duyệt tiền ở trang Admin
+            $successMessage = 'Đặt món thành công! Vui lòng hoàn tất chuyển khoản qua mã QR để đơn hàng được nhà bếp xử lý.';
+        }
+
+        // 10. Dọn sạch dữ liệu giỏ hàng sau khi đã chuyển thành đơn hàng thành công
+       Cart::where('user_id', $userId)->delete();
+        session()->forget('cart');
+
+        return redirect('/')->with('success', $successMessage);
     }
-
-    // 8. Xóa giỏ hàng
-    \App\Models\Cart::where('user_id', $userId)->delete();
-    session()->forget('cart');
-
-    return redirect('/')->with('success', 'Thanh toán thành công! Đơn hàng đã được chuyển tới nhà bếp.');
-}
 public function removeItem($id)
 {
     $userId = auth()->id();
@@ -326,24 +363,28 @@ public function history()
 /**
      * CẬP NHẬT SỐ LƯỢNG (KHI KHÁCH BẤM +/-)
      */
-    public function update(Request $request)
-    {
-        $userId = auth()->id();
-        $menuId = $request->id;
-        $quantity = (int) $request->quantity;
+   public function update(Request $request)
+{
+    $userId = auth()->id();
+    $menuId = $request->id;
+    $quantity = (int) $request->quantity;
 
-        // 1. Cập nhật số lượng mới vào Database giỏ hàng
-        if ($quantity > 0) {
-            \App\Models\Cart::where('user_id', $userId)
-                ->where('menu_id', $menuId)
-                ->update(['quantity' => $quantity]);
-        }
-
-        // 2. Đồng bộ ngay lập tức cho Nhân viên
-        $this->syncCustomerCartToStaff($userId);
-
-        return response()->json(['success' => true]);
+    // 1. Nếu số lượng > 0 thì cập nhật, ngược lại (bằng 0) thì XÓA món
+    if ($quantity > 0) {
+        \App\Models\Cart::where('user_id', $userId)
+            ->where('menu_id', $menuId)
+            ->update(['quantity' => $quantity]);
+    } else {
+        \App\Models\Cart::where('user_id', $userId)
+            ->where('menu_id', $menuId)
+            ->delete();
     }
+
+    // 2. Gọi hàm đồng bộ để cập nhật bảng order_items (để Admin thấy thay đổi)
+    $this->syncCustomerCartToStaff($userId);
+
+    return response()->json(['success' => true]);
+}
 
     /**
      * XÓA MÓN ĂN (KHI KHÁCH BẤM NÚT THÙNG RÁC)
@@ -371,6 +412,9 @@ public function history()
     /**
      * HÀM TIỆN ÍCH: ĐỒNG BỘ TỪ GIỎ HÀNG KHÁCH -> MÀN HÌNH NHÂN VIÊN
      */
+    /**
+     * HÀM TIỆN ÍCH: ĐỒNG BỘ TỪ GIỎ HÀNG KHÁCH -> MÀN HÌNH NHÂN VIÊN & DATABASE CHUẨN
+     */
     private function syncCustomerCartToStaff($userId)
     {
         // 1. Lấy giỏ hàng mới nhất
@@ -390,15 +434,36 @@ public function history()
             $totalPrice += $item->quantity * $item->menu->price;
         }
 
-        // 2. Cập nhật Bảng Đặt Bàn (Reservations) để Nhân viên quản lý
+        // 2. Cập nhật Bảng Đặt Bàn (Reservations)
         $reservation = \App\Models\Reservation::where('user_id', $userId)->latest()->first();
+        
         if ($reservation) {
+            // Cập nhật lại mảng JSON và tổng tiền
             $reservation->update([
                 'cart_data'   => $cartData,
                 'total_price' => $totalPrice
             ]);
 
-            // 3. Cập nhật Hóa đơn (Orders)
+            // =======================================================
+            // 🔥 ĐOẠN FIX QUAN TRỌNG: ĐỒNG BỘ VÀO BẢNG ORDER_ITEMS 
+            // =======================================================
+            // Bước A: Xóa sạch toàn bộ chi tiết món cũ của cái hóa đơn này đi
+            \App\Models\OrderItem::where('reservation_id', $reservation->id)->delete();
+
+            // Bước B: Dựa vào giỏ hàng mới nhất, tạo lại các món ăn (nếu giỏ hàng đã bị xóa trống thì vòng lặp này bỏ qua)
+            foreach ($cartData as $cd) {
+                \App\Models\OrderItem::create([
+                    'reservation_id' => $reservation->id,
+                    'order_id'       => null,
+                    'menu_id'        => $cd['id'],
+                    'quantity'       => $cd['quantity'],
+                    'price'          => $cd['price'],
+                    'product_name'   => $cd['name']
+                ]);
+            }
+            // =======================================================
+
+            // 3. Cập nhật Hóa đơn (Orders) - Dành cho luồng cũ
             $order = \App\Models\Order::where('table_number', $reservation->table_id)
                         ->whereIn('status', ['pending', 'paid', 'serving'])
                         ->latest()->first();
@@ -408,11 +473,12 @@ public function history()
                 \App\Models\OrderItem::where('order_id', $order->id)->delete();
                 foreach ($cartData as $cd) {
                     \App\Models\OrderItem::create([
-                        'order_id'     => $order->id,
-                        'menu_id'      => $cd['id'],
-                        'quantity'     => $cd['quantity'],
-                        'price'        => $cd['price'],
-                        'product_name' => $cd['name']
+                        'order_id'       => $order->id,
+                        'reservation_id' => null,
+                        'menu_id'        => $cd['id'],
+                        'quantity'       => $cd['quantity'],
+                        'price'          => $cd['price'],
+                        'product_name'   => $cd['name']
                     ]);
                 }
             }

@@ -6,23 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-   public function up()
-{
-    Schema::table('orders', function (Blueprint $table) {
-        $table->string('table_number')->nullable()->change();
-    });
-}
+    public function up(): void
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            // Sửa integer() thành string() và cho phép trống (nullable)
+            $table->string('table_number')->nullable()->change();
+        });
+    }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down()
-{
-    Schema::table('orders', function (Blueprint $table) {
-        $table->integer('table_number')->change();
-    });
-}
+    public function down(): void
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            // Hàm down cũng sửa về dạng string để không bị lỗi khi rollback
+            $table->string('table_number')->nullable(false)->change();
+        });
+    }
 };

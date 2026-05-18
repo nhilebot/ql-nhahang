@@ -32,7 +32,7 @@ return new class extends Migration
             // Kiểm tra nếu có cột thì mới xóa khi rollback
             if (Schema::hasColumn('carts', 'menu_id')) {
                 // Lưu ý: Phải xóa khóa ngoại trước khi xóa cột
-                $table->dropForeign(['menu_id']);
+                // $table->dropForeign(['menu_id']);
                 $table->dropColumn('menu_id');
             }
         });

@@ -230,13 +230,55 @@ public function edit($id)
 }
 
 // Lưu trạng thái mới
-public function update(Request $request, $id)
-{
-    $order = Order::findOrFail($id);
-    $order->update(['status' => $request->status]);
-    return redirect()->route('admin.orders.show', $id)
-                     ->with('success', 'Cập nhật trạng thái thành công!');
-}
+// Lưu trạng thái mới (Hàm cập nhật trạng thái dành cho Admin)
+    public function update(Request $request, $id)
+    {
+        $order = Order::with('orderItems')->findOrFail($id);
+        
+        // Lưu lại trạng thái cũ của hóa đơn trước khi cập nhật dữ liệu mới
+        $oldStatus = $order->status; 
+        $newStatus = $request->status;
+
+        // Tiến hành cập nhật trạng thái mới từ form gửi lên
+        $order->update(['status' => $newStatus]);
+
+        // 🔥 LOGIC NGHIỆP VỤ: Kích hoạt gửi Gmail khi Admin duyệt thanh toán thành công
+        // Nếu đơn hàng cũ ở trạng thái chờ tiền (pending_payment) và được duyệt sang trạng thái hợp lệ (paid hoặc pending)
+        if ($oldStatus === 'pending_payment' && ($newStatus === 'paid' || $newStatus === 'pending')) {
+            
+            // Tái cấu trúc danh sách món ăn từ mối quan hệ orderItems trong Database để truyền sang Mail
+            $cartToEmail = [];
+            foreach ($order->orderItems as $item) {
+                $cartToEmail[] = [
+                    'name'     => $item->product_name,
+                    'quantity' => $item->quantity,
+                    'price'    => $item->price,
+                    'total'    => $item->price * $item->quantity
+                ];
+            }
+
+            $mailData = [
+                'invoice' => $order->code,
+                'total'   => $order->total_price,
+                'table'   => $order->table_number,
+                'cart'    => $cartToEmail
+            ];
+
+            // Tìm thông tin email của tài khoản khách hàng để thực hiện gửi
+            $customerEmail = $order->user->email ?? null;
+
+            if ($customerEmail) {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($customerEmail)->send(new \App\Mail\OrderConfirmed($mailData));
+                } catch (\Exception $e) {
+                    \Log::error('Lỗi khi Admin duyệt đơn gửi email tự động thất bại: ' . $e->getMessage());
+                }
+            }
+        }
+
+        return redirect()->route('admin.orders.show', $id)
+                         ->with('success', 'Cập nhật trạng thái và gửi email xác nhận thành công!');
+    }
 
 // Xoá đơn
 public function destroy($id)

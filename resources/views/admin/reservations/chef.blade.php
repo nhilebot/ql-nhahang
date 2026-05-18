@@ -57,33 +57,66 @@
                 </span>
             </div>
 
-            <div class="chef-items-list">
-                @if($order->order && $order->order->orderItems)
-                    @foreach($order->order->orderItems as $item)
-                    <div class="chef-item">
-                        <span class="chef-item-name">🍲 {{ $item->menu->name ?? $item->product_name }}</span>
-                        <span class="chef-item-qty">x{{ $item->quantity }}</span>
-                    </div>
-                    @endforeach
-                @else
-                    <div class="p-4 text-center text-muted small">Chưa có thông tin món ăn</div>
-                @endif
-            </div>
+           <div class="chef-items-list">
+    @if(!empty($order->cart_data))
+        @php
+            $statuses = $order->chef_statuses ?? [];
+            // Tách món cần nấu (pending) vs đã xử lý
+            $pendingItems = collect($order->cart_data)->filter(
+                fn($i) => ($statuses[$i['id']] ?? 'pending') === 'pending'
+            );
+            $doneItems = collect($order->cart_data)->filter(
+                fn($i) => in_array($statuses[$i['id']] ?? 'pending', ['cooking', 'done', 'ready'])
+            );
+        @endphp
 
-            <div class="p-3">
+        {{-- Món cần nấu / gọi thêm mới --}}
+        @if($pendingItems->count())
+        <div style="padding:8px 20px 4px; font-size:11px; color:#f59e0b;
+                    font-weight:800; text-transform:uppercase; letter-spacing:.5px;">
+            🆕 Cần chế biến
+        </div>
+        @foreach($pendingItems as $item)
+        <div class="chef-item" style="background:#fffbeb; border-left:3px solid #f59e0b;">
+            <span class="chef-item-name" style="color:#92400e; font-weight:700;">
+                🍲 {{ $item['name'] }}
+            </span>
+            <span class="chef-item-qty" style="background:#fef3c7; color:#d97706;">
+                x{{ $item['quantity'] }}
+            </span>
+        </div>
+        @endforeach
+        @endif
+
+        {{-- Món đã/đang nấu (mờ, chỉ tham khảo) --}}
+        @if($doneItems->count())
+        <div style="padding:8px 20px 4px; font-size:11px; color:#94a3b8;
+                    font-weight:700; text-transform:uppercase; letter-spacing:.5px;">
+            ✅ Đang nấu / Đã xong
+        </div>
+        @foreach($doneItems as $item)
+        <div class="chef-item" style="opacity:.5;">
+            <span class="chef-item-name">{{ $item['name'] }}</span>
+            <span class="chef-item-qty">x{{ $item['quantity'] }}</span>
+        </div>
+        @endforeach
+        @endif
+
+    @else
+        <div class="p-4 text-center text-muted small">Chưa có thông tin món ăn</div>
+    @endif
+</div>
+
+          <div class="p-3">
     <form action="{{ route('admin.reservations.updateStatus', $order->id) }}" method="POST">
         @csrf
-        {{-- BƯỚC 1: ĐƠN MỚI HIỆN RA - BẾP BẤM ĐỂ XÁC NHẬN BẮT ĐẦU NẤU --}}
+        {{-- BƯỚC 1: BẾP BẤM ĐỂ XÁC NHẬN BẮT ĐẦU NẤU --}}
         @if($order->status == 'arrived')
-            <button name="status" value="serving" class="btn-chef btn-cooking w-100">
-                👨‍🍳 TIẾP NHẬN & BẮT ĐẦU NẤU
-            </button>
+            <button name="status" value="serving" class="btn-chef btn-cooking w-100">👨‍🍳 TIẾP NHẬN & BẮT ĐẦU NẤU</button>
 
-        {{-- BƯỚC 2: ĐANG TRONG QUÁ TRÌNH NẤU - BẾP BẤM ĐỂ BÁO XONG --}}
+        {{-- BƯỚC 2: BẾP BẤM ĐỂ BÁO XONG --}}
         @elseif($order->status == 'serving')
-            <button name="status" value="served" class="btn-chef btn-done w-100">
-                ✅ ĐÃ XONG & CHỜ LÊN MÓN
-            </button>
+            <button name="status" value="served" class="btn-chef btn-done w-100">✅ ĐÃ XONG & CHỜ LÊN MÓN</button>
         @endif
     </form>
 </div>

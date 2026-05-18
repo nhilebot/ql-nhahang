@@ -525,47 +525,57 @@
 </div>
 
 <script>
-    function changeQty(btn, value) {
-        const row = btn.closest('tr');
-        const input = row.querySelector('.qty-input');
-        const stockAvailable = parseInt(input.dataset.stock);
-        const menuId = input.dataset.id; // Lấy ID món ăn
-        
-        let qty = parseInt(input.value);
-        let newQty = qty + value;
+  function changeQty(btn, value) {
+    const row = btn.closest('tr');
+    const input = row.querySelector('.qty-input');
+    const stockAvailable = parseInt(input.dataset.stock);
+    const menuId = input.dataset.id;
+    
+    let qty = parseInt(input.value);
+    let newQty = qty + value;
 
-        if (newQty < 1) return;
+    // Cho phép xuống 0 để xóa món
+    if (newQty < 0) return; 
+
+    // Nếu newQty = 0, hỏi khách có muốn xóa không
+    if (newQty === 0) {
+        if (confirm('Bạn có chắc chắn muốn bỏ món này khỏi thực đơn?')) {
+            row.remove(); // Xóa dòng trên giao diện
+            updateGrandTotal();
+        } else {
+            return;
+        }
+    } else {
         if (value > 0 && newQty > stockAvailable) {
             alert('Hết hàng! Còn ' + stockAvailable + ' phần.');
             return;
         }
-
-        // 1. Cập nhật giao diện ngay lập tức cho mượt
         input.value = newQty;
         updateRowTotal(row);
         updateGrandTotal();
-
-        // 2. Gửi AJAX ngầm về Server để lưu Database & báo cho Nhân viên
-        fetch('{{ route("cart.update") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ 
-                id: menuId, 
-                quantity: newQty 
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(!data.success) {
-                alert("Có lỗi xảy ra khi lưu số lượng, vui lòng thử lại!");
-            }
-        })
-        .catch(error => console.error('Lỗi đồng bộ:', error));
     }
 
+    // Gửi AJAX về Controller để gọi hàm syncCustomerCartToStaff mà mình đã sửa lúc nãy
+    fetch('{{ route("cart.update") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ 
+            id: menuId, 
+            quantity: newQty // Server sẽ nhận số lượng (có thể là 0) để xóa món
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(!data.success) {
+            alert("Có lỗi xảy ra, vui lòng thử lại!");
+            location.reload(); // Reload nếu có lỗi để đồng bộ lại dữ liệu chuẩn
+        }
+    })
+    .catch(error => console.error('Lỗi đồng bộ:', error));
+}
     function updateRowTotal(row) {
         const qty = parseInt(row.querySelector('.qty-input').value);
         const price = parseInt(row.querySelector('.qty-input').dataset.price);

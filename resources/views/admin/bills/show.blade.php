@@ -86,35 +86,33 @@
             </tr>
         </thead>
 
-      <tbody>
-            {{-- Đổi vòng lặp từ orderItems sang đọc trực tiếp từ cart_data --}}
-            @forelse($bill->cart_data ?? [] as $item)
+   <tbody>
+    @php
+        // Đảm bảo dữ liệu cart_data luôn là mảng PHP, nếu là chuỗi JSON sẽ tự decode
+        $itemsList = $bill->cart_data;
+        if (is_string($itemsList)) {
+            $itemsList = json_decode($itemsList, true);
+        }
+    @endphp
 
-            <tr>
-                <td>{{ $item['name'] ?? '---' }}</td>
-
-                <td>{{ $item['quantity'] }}</td>
-
-                <td>
-                    {{ number_format($item['price']) }}đ
-                </td>
-
-                <td>
-                    {{ number_format($item['quantity'] * $item['price']) }}đ
-                </td>
-            </tr>
-
-            @empty
-
-            <tr>
-                <td colspan="4" style="text-align:center;">
-                    Không có món ăn
-                </td>
-            </tr>
-
-            @endforelse
-
-        </tbody>
+    @if(is_array($itemsList) && count($itemsList) > 0)
+        @foreach($itemsList as $item)
+        <tr>
+            {{-- Vì đọc từ mảng JSON nên ta sử dụng cú pháp thẻ mảng $item['key'] --}}
+            <td>{{ $item['name'] ?? $item['product_name'] ?? 'Món ẩn' }}</td>
+            <td><strong>{{ $item['quantity'] }}</strong></td>
+            <td>{{ number_format($item['price']) }}đ</td>
+            <td>{{ number_format($item['quantity'] * $item['price']) }}đ</td>
+        </tr>
+        @endforeach
+    @else
+        <tr>
+            <td colspan="4" style="text-align:center; color: #94a3b8; padding: 20px;">
+                🛒 Chưa có món ăn nào được ghi nhận cho hóa đơn này.
+            </td>
+        </tr>
+    @endif
+</tbody>
 
     </table>
 

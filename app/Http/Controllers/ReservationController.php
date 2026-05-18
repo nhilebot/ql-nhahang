@@ -90,9 +90,24 @@ class ReservationController extends Controller
         $reservation->payment_status     = 'unpaid';
         $reservation->total_price        = $totalAmount;
         $reservation->cart_data          = $cartData;
-        $reservation->save();
+        $reservation->save(); // Lưu đơn đặt bàn trước để lấy ID
 
-        Table::where('id', $request->table_id)->update(['status' => 'reserved']);
+        // LƯU CHI TIẾT MÓN ĂN VÀO BẢNG ORDER_ITEMS
+        if (count($cartData) > 0) {
+            foreach ($cartData as $item) {
+                \App\Models\OrderItem::create([
+                    'reservation_id' => $reservation->id, // Gắn đúng ID đơn đặt bàn vào đây
+                    'order_id'       => null,             // Đơn tại bàn nên order_id để null
+                    'menu_id'        => $item['id'],
+                    'product_name'   => $item['name'],
+                    'quantity'       => $item['quantity'],
+                    'price'          => $item['price'],
+                ]);
+            }
+        }
+
+        // Cập nhật trạng thái bàn
+        \App\Models\Table::where('id', $request->table_id)->update(['status' => 'reserved']);
 
         try {
             $reservation->refresh()->load('table');
@@ -192,39 +207,79 @@ class ReservationController extends Controller
      *   pending → confirmed → arrived → serving → ready → served → completed
      *   Thanh toán: paid_cash / paid_transfer → payment_status = 'paid'
      */
+  /**
+     * Cập nhật trạng thái đặt bàn (Admin & Staff & Kitchen)
+     */
     public function updateStatus(Request $request, $id)
     {
         $reservation = \App\Models\Reservation::findOrFail($id);
         $newStatus = $request->input('status');
 
-        // 1. Cập nhật trạng thái cho Đơn đặt bàn (Bên Staff)
-        $reservation->update(['status' => $newStatus]);
+        // Đọc mảng chef_statuses hiện tại
+        $chefStatuses = $reservation->chef_statuses;
+        if (!is_array($chefStatuses)) {
+            $chefStatuses = is_string($chefStatuses) ? json_decode($chefStatuses, true) : [];
+        }
 
-        // 2. ĐỒNG BỘ TRẠNG THÁI SANG HÓA ĐƠN (Bên Khách Hàng)
-        // Tìm hóa đơn đang gắn với bàn này và cập nhật trạng thái theo Nhân viên
+        // Đọc mảng cart_data hành động ép kiểu mảng để chống lỗi JSON String
+        $cartData = $reservation->cart_data;
+        if (is_string($cartData)) {
+            $cartData = json_decode($cartData, true);
+        }
+
+        // 🔥 XỬ LÝ ĐỒNG BỘ: Duyệt toàn bộ món ăn tại bàn để đổi trạng thái chi tiết
+        if (is_array($cartData) && count($cartData) > 0) {
+            foreach ($cartData as $item) {
+                // Đảm bảo lấy đúng khóa ID (chống trường hợp mảng bị lệch cấu trúc)
+                $itemId = $item['id'] ?? null;
+                if (!$itemId) continue;
+
+                if ($newStatus === 'serving') {
+                    // Khi bếp bấm "TIẾP NHẬN & BẮT ĐẦU NẤU"
+                    // Chuyển những món nào đang 'pending' sang 'cooking'
+                    if (($chefStatuses[$itemId] ?? 'pending') === 'pending') {
+                        $chefStatuses[$itemId] = 'cooking';
+                    }
+                } elseif ($newStatus === 'served') {
+                    // Khi bếp bấm "ĐÃ XONG & CHỜ LÊN MÓN"
+                    // Bắt buộc chuyển toàn bộ tất cả món ăn tại bàn sang 'ready'
+                    $chefStatuses[$itemId] = 'ready'; 
+                }
+            }
+        }
+
+        // 2. Tiến hành cập nhật Database cho đơn đặt bàn
+        $reservation->status = $newStatus;
+        $reservation->chef_statuses = $chefStatuses;
+        $reservation->save();
+
+        // 3. ĐỒNG BỘ SANG HÓA ĐƠN (ORDER) VÀ MÀN HÌNH KHÁCH
         $order = \App\Models\Order::where('table_number', $reservation->table_id)
                     ->orderBy('created_at', 'desc')
                     ->first();
                     
         if ($order) {
-            $order->update(['status' => $newStatus]);
+            $orderUpdateData = ['status' => $newStatus];
+            
+            // Đồng bộ mảng chef_statuses sang bảng orders nếu có cột
+            if (\Schema::hasColumn('orders', 'chef_statuses')) {
+                $orderUpdateData['chef_statuses'] = $chefStatuses;
+            }
+            $order->update($orderUpdateData);
         }
 
-        // 3. TỰ ĐỘNG GIẢI PHÓNG BÀN KHI DỌN BÀN
-        // Nếu nhân viên bấm "Xong & Dọn bàn", chuyển bàn đó thành 'available' (Trống)
-      // 3. TỰ ĐỘNG GIẢI PHÓNG BÀN KHI DỌN BÀN
-        // Đổi thành 'cleaning' để kích hoạt đồng hồ đếm ngược bên giao diện
+        // 4. GIẢI PHÓNG BÀN KHI HOÀN TẤT
         if ($newStatus === 'completed') {
             $table = \App\Models\Table::find($reservation->table_id);
             if ($table) {
                 $table->update([
                     'status' => 'cleaning',
-                    'cleanup_started_at' => now() // Ghi nhận thời gian bắt đầu đếm lùi
+                    'cleanup_started_at' => now()
                 ]); 
             }
         }
 
-        return redirect()->back()->with('success', 'Đã cập nhật trạng thái phục vụ thành công!');
+        return redirect()->back()->with('success', 'Đã cập nhật trạng thái và đồng bộ dữ liệu món ăn!');
     }
 
     // -------------------------------------------------------

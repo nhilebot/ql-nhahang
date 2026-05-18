@@ -494,7 +494,7 @@
     $initials = mb_strtoupper(mb_substr($userName, 0, 1));
     @endphp
 
-    <div class="sidebar-section-label">Menu chức năng</div>
+    <div class="sidebar-section-label">Tổng quan</div>
 
     <nav class="sidebar-nav">
 
@@ -502,7 +502,7 @@
       @if($role === 'admin')
 
         <a class="nav-item {{ (Request::is('admin') && !Request::is('admin/*')) ? 'active' : '' }}" href="{{ route('admin.index') }}">
-          <div class="nav-item-left"><div class="nav-icon">📊</div>Bảng điều khiển</div>
+          <div class="nav-item-left"><div class="nav-icon">📊</div>Dashboard</div>
           <!-- <span class="nav-arrow">›</span> -->
         </a>
       <div class="sidebar-section-label">Quản lý thực đơn</div>
@@ -531,7 +531,7 @@
 
         <div>
           <a class="nav-item {{ Request::routeIs('admin.tables.*') ? 'active' : '' }}" href="#" onclick="toggleSub(event,'table-sub',this)">
-            <div class="nav-item-left"><div class="nav-icon">🪑</div>Quản lý bàn</div>
+            <div class="nav-item-left"><div class="nav-icon">🪑</div>Bàn ăn</div>
             <span class="nav-arrow {{ Request::routeIs('admin.tables.*') ? 'rotate-90':'' }}">›</span>
           </a>
           <div class="sub-menu" id="table-sub" style="display:{{ Request::routeIs('admin.tables.*')?'flex':'none' }}">
@@ -541,14 +541,14 @@
         </div>
 
         <a class="nav-item {{ Request::routeIs('admin.reservations.*') ? 'active' : '' }}" href="{{ route('admin.reservations.index') }}">
-          <div class="nav-item-left"><div class="nav-icon">📅</div>Đặt bàn & Phục vụ</div>
+          <div class="nav-item-left"><div class="nav-icon">🛎️ </div>Order & phục vụ</div>
           <!-- <span class="nav-arrow">›</span> -->
         </a>
-        <div class="sidebar-section-label">Lịch sử hóa đơn</div>
+        <div class="sidebar-section-label">Thanh toán</div>
       <a class="nav-item {{ Request::routeIs('admin.bills.*') ? 'active' : '' }}"
    href="{{ route('admin.bills.index') }}">
   <div class="nav-item-left">
-      <div class="nav-icon">🧾</div>Quản lý hóa đơn
+      <div class="nav-icon">🧾</div>Hóa đơn
   </div>
   <!-- <span class="nav-arrow">›</span> -->
 </a>
@@ -573,23 +573,79 @@
       {{-- ═══ KẾT THÚC ADMIN ═══ --}}
 
       {{-- ═══ STAFF ═══ --}}
-      @if($role === 'staff' || auth()->user()->role_id == 3)
-        <div>
-          <a class="nav-item {{ Request::routeIs('admin.tables.*') ? 'active' : '' }}" href="#" onclick="toggleSub(event,'table-sub',this)">
-            <div class="nav-item-left"><div class="nav-icon">🪑</div>Quản lý bàn</div>
-            <span class="nav-arrow {{ Request::routeIs('admin.tables.*') ? 'rotate-90':'' }}">›</span>
-          </a>
-          <div class="sub-menu" id="table-sub" style="display:{{ Request::routeIs('admin.tables.*')?'flex':'none' }}">
-                    <a class="nav-item {{ Request::routeIs('staff.tables.index') ? 'active' : '' }}" href="{{ route('staff.tables.index') }}">Danh sách bàn</a>
-                    <a class="nav-item {{ Request::routeIs('staff.reservations.create') ? 'active' : '' }}" href="{{ route('staff.reservations.create') }}">
-                      + Tạo đơn đặt bàn</a>
-          </div>
-        </div>
-        <a class="nav-item {{ Request::routeIs('staff.reservations.index') ? 'active' : '' }}" href="{{ route('staff.reservations.index') }}">
-          <div class="nav-item-left"><div class="nav-icon">📋</div>Danh sách phục vụ</div>
+    @if($role === 'staff' || auth()->user()->role_id == 3)
+
+    <div class="sidebar-section-label">Phục vụ nhà hàng</div>
+
+    {{-- BÀN ĂN --}}
+    <div>
+        <a class="nav-item {{ Request::routeIs('staff.tables.*') ? 'active' : '' }}"
+           href="#"
+           onclick="toggleSub(event,'staff-table-sub',this)">
+
+            <div class="nav-item-left">
+                <div class="nav-icon">🪑</div>
+                Bàn ăn
+            </div>
+
+            <span class="nav-arrow {{ Request::routeIs('staff.tables.*') ? 'rotate-90':'' }}">
+                ›
+            </span>
         </a>
-        
-      @endif
+
+        <div class="sub-menu"
+             id="staff-table-sub"
+             style="display:{{ Request::routeIs('staff.tables.*') ? 'flex':'none' }}">
+
+            <a class="sub-item {{ Request::routeIs('staff.tables.index') ? 'active':'' }}"
+               href="{{ route('staff.tables.index') }}">
+                Danh sách bàn
+            </a>
+        </div>
+    </div>
+
+
+    {{-- ĐẶT BÀN --}}
+    <div>
+        <a class="nav-item {{ Request::routeIs('staff.reservations.*') ? 'active' : '' }}"
+           href="#"
+           onclick="toggleSub(event,'staff-reservation-sub',this)">
+
+            <div class="nav-item-left">
+                <div class="nav-icon">📅</div>
+                Đặt bàn
+            </div>
+
+            <span class="nav-arrow {{ Request::routeIs('staff.reservations.*') ? 'rotate-90':'' }}">
+                ›
+            </span>
+        </a>
+
+        <div class="sub-menu"
+             id="staff-reservation-sub"
+             style="display:{{ Request::routeIs('staff.reservations.*') ? 'flex':'none' }}">
+
+            <a class="sub-item {{ Request::routeIs('staff.reservations.index') ? 'active':'' }}"
+               href="{{ route('staff.reservations.index') }}">
+                Danh sách phục vụ
+            </a>
+
+            <a class="sub-item {{ Request::routeIs('staff.reservations.create') ? 'active':'' }}"
+               href="{{ route('staff.reservations.create') }}">
+                + Tạo đặt bàn
+            </a>
+        </div>
+        <a class="nav-item {{ Request::routeIs('cashier.*') ? 'active' : '' }}"
+   href="{{ route('cashier.index') }}">
+
+    <div class="nav-item-left">
+        <div class="nav-icon">💳</div>
+        Thanh toán
+    </div>
+</a>
+    </div>
+
+@endif
 
       {{-- ═══ CHEF ═══ --}}
       @if($role === 'chef')

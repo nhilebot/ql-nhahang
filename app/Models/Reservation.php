@@ -37,17 +37,11 @@ class Reservation extends Model
         'cart_data' => 'array',
          'chef_statuses'  => 'array',
     ];
-    public function orderItems()
+   public function orderItems()
 {
-    // Lấy món ăn (OrderItem) thông qua bảng trung gian là Đơn hàng (Order)
-    return $this->hasManyThrough(
-        \App\Models\OrderItem::class,
-        \App\Models\Order::class,
-        'user_id',      // Khóa ngoại trên bảng Orders nối với Reservations (user_id)
-        'order_id',     // Khóa ngoại trên bảng OrderItems nối với Orders (id)
-        'user_id',      // Khóa nội trên bảng Reservations
-        'id'            // Khóa nội trên bảng Orders
-    );
+    // Cực kỳ quan trọng: Liên kết trực tiếp bằng reservation_id
+    // Nó sẽ chỉ lấy những món ăn có gắn ID của đúng hóa đơn này
+    return $this->hasMany(\App\Models\OrderItem::class, 'reservation_id', 'id');
 }
 public function order()
 {

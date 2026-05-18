@@ -112,7 +112,6 @@
         padding: 12px 35px;
         border-radius: 30px;
         font-weight: bold;
-        /* text-transform: uppercase; */
         transition: 0.3s;
         box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
         cursor: pointer;
@@ -124,7 +123,7 @@
         box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
     }
 
-    /* ─── PHẦN SẢN PHẨM LIÊN QUAN (MỚI) ─── */
+    /* ─── PHẦN SẢN PHẨM LIÊN QUAN ─── */
     .related-container {
         margin-top: 40px;
         margin-bottom: 50px;
@@ -189,7 +188,6 @@
         margin-bottom: 10px;
     }
 
-    /* Nút thêm món ở phần liên quan */
     .btn-related-add {
         width: 100%;
        background-color: #D4AF37;
@@ -199,7 +197,6 @@
         border-radius: 30px;
         font-weight: bold;
         font-size: 13px;
-        /* text-transform: uppercase; */
         transition: 0.3s;
         cursor: pointer;
         box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);
@@ -235,6 +232,44 @@
         display: flex;
         gap: 15px;
     }
+
+    /* ── CSS CHỌN SAO KIỂU SHOPEE ── */
+    .shopee-rating {
+        display: inline-flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 10px;
+    }
+    .shopee-rating input[type="radio"] { display: none; }
+    .shopee-rating label {
+        font-size: 26px;
+        color: #e4e4e4;
+        cursor: pointer;
+        transition: color 0.1s ease;
+        margin: 0;
+    }
+    .shopee-rating label:hover,
+    .shopee-rating label:hover ~ label { color: #ff9727; }
+    .shopee-rating input[type="radio"]:checked ~ label { color: #ee4d2d; }
+    
+    .rating-text {
+        margin-left: 15px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #ee4d2d;
+    }
+
+    /* Nút hành động sửa/xóa bình luận */
+    .comment-actions {
+        display: flex;
+        gap: 10px;
+    }
+    .btn-action-edit { background: none; border: none; color: #4aa0e6; cursor: pointer; font-size: 14px; padding: 0; }
+    .btn-action-delete { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 14px; padding: 0; }
+    .btn-action-edit:hover { text-decoration: underline; }
+    .btn-action-delete:hover { text-decoration: underline; }
 </style>
 @endsection
 
@@ -328,23 +363,42 @@
                 <form action="{{ route('comment.store', $menu->id) }}" method="POST">
                     @csrf
                     <input type="hidden" name="menu_id" value="{{ $menu->id }}">
-                    <div class="row" style="margin-bottom: 15px;">
-                        <div class="col-sm-4">
-                            <label>Đánh giá sao:</label>
-                            <select name="rating" class="form-control" style="border-radius: 20px;">
-                                <option value="5">★★★★★ - Tuyệt vời</option>
-                                <option value="4">★★★★☆ - Ngon</option>
-                                <option value="3">★★★☆☆ - Tạm được</option>
-                                <option value="2">★★☆☆☆ - Không ngon</option>
-                                <option value="1">★☆☆☆☆ - Tệ</option>
-                            </select>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label class="d-block" style="font-weight: 600; margin-bottom: 5px;">Mức độ hài lòng:</label>
+                        {{-- HỆ THỐNG SAO SHOPEE BẤM 1 CHẠM --}}
+                        <div class="shopee-rating">
+                            <input type="radio" id="star5" name="rating" value="5" checked />
+                            <label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4" />
+                            <label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3" />
+                            <label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2" />
+                            <label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1" />
+                            <label for="star1">★</label>
+                            <span class="rating-text">Tuyệt vời 😍</span>
                         </div>
                     </div>
+
                     <textarea name="content" class="form-control" rows="3" style="border-radius: 10px; margin-bottom:10px;" placeholder="Chia sẻ trải nghiệm của bạn..." required></textarea>
                     <button type="submit" class="btn-add-cart" style="padding: 8px 25px; font-size: 14px;">Gửi đánh giá</button>
                 </form>
             </div>
-        @else
+      {{-- Đoạn code hiển thị thông báo chỉ bằng chữ màu đỏ/xanh đơn giản --}}
+@if(session('success'))
+    <div style="color: #af2424; font-weight: 600; margin-bottom: 15px; font-size: 15px;">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div style="color: #e74c3c; font-weight: 600; margin-bottom: 15px; font-size: 15px;">
+        {{ session('error') }}
+    </div>
+@endif
+            @else
             <div class="alert alert-warning" style="border-radius: 15px;">
                 Vui lòng <a href="{{ route('login') }}" class="alert-link">đăng nhập</a> để để lại đánh giá.
             </div>
@@ -352,19 +406,41 @@
 
         <div class="comment-list">
             @forelse($menu->comments as $comment)
-                <div class="comment-item">
+                <div class="comment-item" id="comment-box-{{ $comment->id }}">
                     <img src="{{ $comment->user->avatar ? asset('storage/' . $comment->user->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->name) . '&background=e74c3c&color=fff' }}" class="avatar-circle">
                     <div style="flex: 1;">
-                        <div style="display: flex; justify-content: space-between;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
                             <h5 style="margin: 0; font-weight: bold;">{{ $comment->user->name }}</h5>
-                            <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                            
+                            {{-- Nút sửa/xóa (Chỉ hiện nếu đúng là chủ sở hữu bình luận) --}}
+                            @auth
+                                @if(auth()->id() === $comment->user_id)
+                                    <div class="comment-actions">
+                                        <button type="button" class="btn-action-edit" onclick="showEditForm({{ $comment->id }}, '{{ $comment->content }}', {{ $comment->rating }})">
+                                            <i class="fa fa-pencil"></i> Sửa
+                                        </button>
+                                        &nbsp;|&nbsp;
+                                        <form action="{{ route('comment.destroy', $comment->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-action-delete">
+                                                <i class="fa fa-trash"></i> Xóa
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endif
+                            @endauth
                         </div>
+                        
+                        <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                        
                         <div style="color: #ffc107; font-size: 12px; margin: 5px 0;">
                             @for($i = 1; $i <= 5; $i++)
                                 <i class="fa {{ $i <= $comment->rating ? 'fa-star' : 'fa-star-o' }}"></i>
                             @endfor
                         </div>
-                        <p style="color: #555;">{{ $comment->content }}</p>
+                        
+                        <p style="color: #555;" class="comment-content-text">{{ $comment->content }}</p>
                     </div>
                 </div>
             @empty
@@ -377,10 +453,100 @@
     </div>
 </div>
 
+{{-- MODAL CHỈNH SỬA BÌNH LUẬN ẨN --}}
+<div class="modal fade" id="editCommentModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 15px;">
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-weight:bold;">✏️ Chỉnh sửa đánh giá</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="edit-comment-form" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div style="margin-bottom: 15px;">
+                        <label class="d-block" style="font-weight:600;">Sửa số sao:</label>
+                        <div class="shopee-rating modal-shopee-rating">
+                            <input type="radio" id="mod-star5" name="rating" value="5" />
+                            <label for="mod-star5">★</label>
+                            <input type="radio" id="mod-star4" name="rating" value="4" />
+                            <label for="mod-star4">★</label>
+                            <input type="radio" id="mod-star3" name="rating" value="3" />
+                            <label for="mod-star3">★</label>
+                            <input type="radio" id="mod-star2" name="rating" value="2" />
+                            <label for="mod-star2">★</label>
+                            <input type="radio" id="mod-star1" name="rating" value="1" />
+                            <label for="mod-star1">★</label>
+                            <span class="rating-text modal-rating-text">Tuyệt vời 😍</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-weight:600;">Nội dung đánh giá:</label>
+                        <textarea name="content" id="edit-comment-content" class="form-control" rows="4" style="border-radius:10px;" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius:20px;">Hủy</button>
+                    <button type="submit" class="btn-add-cart" style="padding: 6px 20px; font-size: 14px;">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+// Đoạn JS điều khiển đổi text theo số sao động chuẩn Shopee
+document.addEventListener("DOMContentLoaded", function() {
+    const texts = {
+        "1": "Tệ 😡",
+        "2": "Không ngon 😞",
+        "3": "Tạm được 😐",
+        "4": "Ngon 😋",
+        "5": "Tuyệt vời 😍"
+    };
+
+    // Áp dụng cho form thêm mới
+    document.querySelectorAll('.shopee-rating:not(.modal-shopee-rating) input').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelector('.shopee-rating:not(.modal-shopee-rating) .rating-text').textContent = texts[this.value];
+        });
+    });
+
+    // Áp dụng cho form trên Modal chỉnh sửa
+    document.querySelectorAll('.modal-shopee-rating input').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelector('.modal-rating-text').textContent = texts[this.value];
+        });
+    });
+});
+
+// Hàm hiển thị modal và nạp dữ liệu cũ của bình luận lên để sửa
+// Hàm hiển thị modal và nạp dữ liệu cũ của bình luận lên để sửa
+function showEditForm(commentId, currentContent, currentRating) {
+    const texts = { "1": "Tệ 😡", "2": "Không ngon 😞", "3": "Tạm được 😐", "4": "Ngon 😋", "5": "Tuyệt vời 😍" };
+    
+    // Sử dụng cú pháp thay thế chuỗi của Javascript để truyền ID vào URL động
+    document.getElementById('edit-comment-form').action = "{{ url('/comments') }}/" + commentId;
+    
+    // Nạp nội dung cũ
+    document.getElementById('edit-comment-content').value = currentContent;
+    
+    // Kích hoạt tích chọn vào ngôi sao cũ
+    const targetRadio = document.getElementById('mod-star' + currentRating);
+    if(targetRadio) {
+        targetRadio.checked = true;
+        document.querySelector('.modal-rating-text').textContent = texts[currentRating];
+    }
+    
+    // Bật modal lên hiển thị
+    $('#editCommentModal').modal('show');
+}
+
 function addToCart(foodId, forceQty = null) {
-    // Ưu tiên forceQty (nút liên quan), nếu không lấy từ input #quantity (nút chính)
     let qtyInput = document.getElementById('quantity');
     let qty = forceQty ? forceQty : (qtyInput ? qtyInput.value : 1);
     

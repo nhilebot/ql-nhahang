@@ -9,7 +9,7 @@ class OrderItem extends Model
     use HasFactory;
     
     protected $table = 'order_items';
-    protected $fillable = ['order_id', 'menu_id', 'product_name', 'quantity', 'price', 'chef_status'];
+    protected $fillable = ['order_id','reservation_id', 'menu_id', 'product_name', 'quantity', 'price', 'chef_status'];
     protected $casts = ['price' => 'decimal:2'];
 
     public function order() { return $this->belongsTo(Order::class); }

@@ -96,6 +96,9 @@ Route::get('/order-history', [App\Http\Controllers\OrderController::class, 'hist
     // =========================================================
     Route::middleware('role:2')->prefix('admin')->name('admin.')->group(function () {
         // Quản lý hóa đơn
+        Route::get('/orders', function () {
+        return view('staff.orders.index');
+    })->name('orders.index');
 Route::get('/bills', [App\Http\Controllers\AdminBillController::class, 'index'])
     ->name('bills.index');
 
