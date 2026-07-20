@@ -12,23 +12,41 @@ class TableSeeder extends Seeder
      */
     public function run()
     {
-        $tables = [
-            ['name' => 'Bàn 01', 'status' => 'empty', 'cleanup_started_at' => null],
-            ['name' => 'Bàn 02', 'status' => 'empty', 'cleanup_started_at' => null],
-            ['name' => 'Bàn 03', 'status' => 'empty', 'cleanup_started_at' => null],
-            ['name' => 'Bàn 04', 'status' => 'empty', 'cleanup_started_at' => null],
-            ['name' => 'Bàn 05', 'status' => 'empty', 'cleanup_started_at' => null],
-            ['name' => 'Bàn 06', 'status' => 'empty', 'cleanup_started_at' => null],
-            ['name' => 'Bàn 07', 'status' => 'empty', 'cleanup_started_at' => null],
-            ['name' => 'Bàn 08', 'status' => 'empty', 'cleanup_started_at' => null],
-            ['name' => 'Bàn 09', 'status' => 'empty', 'cleanup_started_at' => null],
-            ['name' => 'Bàn 10', 'status' => 'empty', 'cleanup_started_at' => null],
-            ['name' => 'Bàn VIP 01', 'status' => 'empty', 'cleanup_started_at' => null],
-            ['name' => 'Bàn VIP 02', 'status' => 'empty', 'cleanup_started_at' => null], // Đã sửa lỗi đóng ngoặc ở đây
-            ['name' => 'Bàn VIP 03', 'status' => 'empty', 'cleanup_started_at' => null],
-            ['name' => 'Bàn Ngoài Trời 01', 'status' => 'empty', 'cleanup_started_at' => null],
-            ['name' => 'Bàn Ngoài Trời 02', 'status' => 'empty', 'cleanup_started_at' => null],
-        ];
+      $tables = [
+
+    ['name'=>'Bàn 01','capacity'=>12,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn 02','capacity'=>12,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn 03','capacity'=>12,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn 04','capacity'=>6,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn 05','capacity'=>8,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn 06','capacity'=>10,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn 07','capacity'=>4,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn 08','capacity'=>4,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn 09','capacity'=>2,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn 10','capacity'=>2,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn VIP 01','capacity'=>15,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn VIP 02','capacity'=>20,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn VIP 03','capacity'=>25,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn Ngoài Trời 01','capacity'=>5,'status'=>'empty','cleanup_started_at'=>null],
+    
+    ['name'=>'Bàn Ngoài Trời 02','capacity'=>4,'status'=>'empty','cleanup_started_at'=>null],
+
+    ['name'=>'Bàn Ngoài Trời 03','capacity'=>2,'status'=>'empty','cleanup_started_at'=>null],
+
+];
 
         foreach ($tables as $table) {
             // Sử dụng updateOrInsert để nếu có tên bàn rồi thì chỉ cập nhật, chưa có thì mới thêm

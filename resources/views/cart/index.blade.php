@@ -4,11 +4,10 @@
 
 @section('head')
 <style>
-    /* ===== CSS LUXURY THEME ĐỒNG BỘ ===== */
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
     body { 
-        background-color: #F9F8F6; /* Màu nền trắng kem */
+        background-color: #F9F8F6;
         padding: 50px 0; 
         font-family: 'Plus Jakarta Sans', sans-serif; 
     }
@@ -18,7 +17,7 @@
         padding: 45px 50px; 
         border-radius: 12px; 
         box-shadow: 0 15px 40px rgba(0,0,0,0.08); 
-        border-top: 5px solid #D4AF37; /* Viền vàng đồng */
+        border-top: 5px solid #D4AF37;
     }
 
     .page-title {
@@ -39,7 +38,6 @@
         margin: 15px auto 0;
     }
 
-    /* Bill Info Section */
     .bill-info { 
         background: #FCFBF8; 
         padding: 25px; 
@@ -51,7 +49,6 @@
     .bill-info p { margin-bottom: 8px; }
     .bill-info strong { color: #1A2228; font-weight: 600; }
 
-    /* Table Order */
     .table-responsive {
         border-radius: 8px;
         overflow: hidden;
@@ -78,7 +75,6 @@
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
-    /* Quantity Controls */
     .qty-box {
         display: flex;
         justify-content: center;
@@ -113,11 +109,9 @@
         color: #1A2228;
     }
 
-    /* Total Footer */
     .table-order tfoot th { background: #FCFBF8; font-family: 'Playfair Display', serif; }
     .total-amount-text { color: #D4AF37 !important; font-size: 1.6rem !important; font-weight: 700; }
 
-    /* Buttons */
     .btn-checkout { 
         background-color: #D4AF37; 
         color: #FFF; 
@@ -140,7 +134,6 @@
         box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
     }
 
-    /* Payment Methods */
     .payment-methods-box { 
         border: none; 
         padding: 30px; 
@@ -193,7 +186,6 @@
     }
     .payment-item.active i { color: #D4AF37; }
 
-    /* QR Area */
     #qr-inline-area { 
         display: none; 
         margin-top: 15px; 
@@ -212,7 +204,6 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Modal Bill Cao Cấp */
     .premium-bill {
         background: #FFFDF8;
         border-radius: 4px;
@@ -315,31 +306,86 @@
         @endif
 
         <div class="bill-info">
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Mã phiếu:</strong> {{ $invoiceNumber }}</p>
-                    <p><strong>Thời gian:</strong> {{ $currentDateTime }}</p>
-                    <p><strong>Lịch đặt:</strong> {{ $reservation['time'] }} - {{ $reservation['date'] }}</p>
-                    <p><strong>Khách hàng:</strong> {{ $reservation['name'] }}</p>
-                </div>
-                <div class="col-md-6 text-md-right">
-                    <p><strong>Vị trí:</strong> <span style="background: #1A2228; color: #D4AF37; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 13px;">{{ $reservation['table'] }}</span></p>
-                    <p><strong>Trạng thái:</strong> 
-                        <span class="font-weight-bold" style="color: #D4AF37;">
-                            @if($reservation['status'] == 'preparing')
-                                👨‍🍳 Đang phục vụ
-                            @elseif($reservation['status'] == 'served')
-                                🍽️ Đã lên món
-                            @elseif($reservation['status'] == 'completed')
-                                ✅ Hoàn tất
-                            @else
-                                ⏳ {{ $reservation['status'] }}
-                            @endif
-                        </span>
-                    </p>
-                </div>
-            </div>
+    <div class="row">
+
+        {{-- CỘT TRÁI --}}
+        <div class="col-md-6">
+            <p><strong>Mã phiếu:</strong> {{ $invoiceNumber }}</p>
+
+            <p><strong>Thời gian:</strong> {{ $currentDateTime }}</p>
+
+            <p>
+                <strong>Lịch đặt:</strong>
+                {{ $reservation['time'] }} - {{ $reservation['date'] }}
+            </p>
+
+            <p><strong>Khách hàng:</strong> {{ $reservation['name'] }}</p>
         </div>
+
+        {{-- CỘT PHẢI --}}
+        <div class="col-md-6 text-md-right">
+
+            <p>
+                <strong>Vị trí:</strong>
+
+                <span style="
+                    background: #1A2228;
+                    color: #D4AF37;
+                    padding: 4px 12px;
+                    border-radius: 20px;
+                    font-weight: 600;
+                    font-size: 13px;
+                ">
+                    {{ $reservation['table'] }}
+                </span>
+            </p>
+
+            <p>
+                <strong>Trạng thái:</strong>
+
+                <span class="font-weight-bold" style="color: #D4AF37;">
+                    @if($reservation['status'] == 'preparing')
+                        👨‍🍳 Đang phục vụ
+
+                    @elseif($reservation['status'] == 'served')
+                        🍽️ Đã lên món
+
+                    @elseif($reservation['status'] == 'completed')
+                        ✅ Hoàn tất
+
+                    @else
+                        ⏳ {{ $reservation['status'] }}
+                    @endif
+                </span>
+            </p>
+
+            {{-- GHI CHÚ --}}
+            @php
+                $notesValue = $reservation['notes'] ?? '';
+
+                $notesEmpty =
+                    empty($notesValue)
+                    || $notesValue === 'Không có yêu cầu đặc biệt'
+                    || $notesValue === 'Chưa có ghi chú';
+            @endphp
+
+            @if(!$notesEmpty)
+                <p>
+                    <strong>Ghi chú:</strong>
+
+                    <span style="
+                        color: #D4AF37;
+                        font-style: italic;
+                    ">
+                        {{ $notesValue }}
+                    </span>
+                </p>
+            @endif
+
+        </div>
+
+    </div>
+</div>
 
         <div class="table-responsive mb-5">
             <table class="table table-order">
@@ -354,7 +400,6 @@
                 </thead>
                 <tbody>
                     @forelse($cart as $item)
-                        {{-- ẨN MÓN 0 ĐỒNG TẠI ĐÂY --}}
                         @if($item['quantity'] > 0)
                         <tr>
                             <td>
@@ -427,7 +472,6 @@
             <div class="col-md-6">
                 <label class="payment-item" id="label-bank">
                     <input type="radio" name="payment_method" value="BANK">
-                    <!-- <i class="fas fa-qrcode"></i> -->
                     <div>
                         <h6>Chuyển Khoản Ngân Hàng</h6>
                         <small>Tiện lợi, an toàn qua mã QR</small>
@@ -483,6 +527,13 @@
                     <p class="mb-1"><span style="color: #718096; display: inline-block; width: 75px;">Thời gian:</span> <strong>{{ $currentDateTime }}</strong></p>
                     <p class="mb-1"><span style="color: #718096; display: inline-block; width: 75px;">Phục vụ:</span> <strong style="color: #D4AF37;">{{ $reservation['table'] ?? '1' }}</strong></p>
                     <p class="mb-1"><span style="color: #718096; display: inline-block; width: 75px;">Thanh toán:</span> <strong id="bill-payment-method-text">Tại Bàn (Tiền mặt / POS)</strong></p>
+                    {{-- ✅ THÊM MỚI: GHI CHÚ TRONG MODAL BILL --}}
+                    @if(!$notesEmpty)
+                        <p class="mb-1">
+                            <span style="color: #718096; display: inline-block; width: 75px;">Ghi chú:</span> 
+                            <strong style="color: #D4AF37; font-style: italic;">{{ $notesValue }}</strong>
+                        </p>
+                    @endif
                 </div>
 
                 <table class="table-premium mt-3">
@@ -495,7 +546,6 @@
                     </thead>
                     <tbody>
                         @foreach($cart as $item)
-                            {{-- ẨN MÓN 0 ĐỒNG TRONG MODAL TẠI ĐÂY --}}
                             @if($item['quantity'] > 0)
                             <tr>
                                 <td style="font-weight: 500;">{{ $item['name'] }}</td>
@@ -525,57 +575,55 @@
 </div>
 
 <script>
-  function changeQty(btn, value) {
-    const row = btn.closest('tr');
-    const input = row.querySelector('.qty-input');
-    const stockAvailable = parseInt(input.dataset.stock);
-    const menuId = input.dataset.id;
-    
-    let qty = parseInt(input.value);
-    let newQty = qty + value;
+    function changeQty(btn, value) {
+        const row = btn.closest('tr');
+        const input = row.querySelector('.qty-input');
+        const stockAvailable = parseInt(input.dataset.stock);
+        const menuId = input.dataset.id;
+        
+        let qty = parseInt(input.value);
+        let newQty = qty + value;
 
-    // Cho phép xuống 0 để xóa món
-    if (newQty < 0) return; 
+        if (newQty < 0) return; 
 
-    // Nếu newQty = 0, hỏi khách có muốn xóa không
-    if (newQty === 0) {
-        if (confirm('Bạn có chắc chắn muốn bỏ món này khỏi thực đơn?')) {
-            row.remove(); // Xóa dòng trên giao diện
-            updateGrandTotal();
+        if (newQty === 0) {
+            if (confirm('Bạn có chắc chắn muốn bỏ món này khỏi thực đơn?')) {
+                row.remove();
+                updateGrandTotal();
+            } else {
+                return;
+            }
         } else {
-            return;
+            if (value > 0 && newQty > stockAvailable) {
+                alert('Hết hàng! Còn ' + stockAvailable + ' phần.');
+                return;
+            }
+            input.value = newQty;
+            updateRowTotal(row);
+            updateGrandTotal();
         }
-    } else {
-        if (value > 0 && newQty > stockAvailable) {
-            alert('Hết hàng! Còn ' + stockAvailable + ' phần.');
-            return;
-        }
-        input.value = newQty;
-        updateRowTotal(row);
-        updateGrandTotal();
+
+        fetch('{{ route("cart.update") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ 
+                id: menuId, 
+                quantity: newQty
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(!data.success) {
+                alert("Có lỗi xảy ra, vui lòng thử lại!");
+                location.reload();
+            }
+        })
+        .catch(error => console.error('Lỗi đồng bộ:', error));
     }
 
-    // Gửi AJAX về Controller để gọi hàm syncCustomerCartToStaff mà mình đã sửa lúc nãy
-    fetch('{{ route("cart.update") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({ 
-            id: menuId, 
-            quantity: newQty // Server sẽ nhận số lượng (có thể là 0) để xóa món
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(!data.success) {
-            alert("Có lỗi xảy ra, vui lòng thử lại!");
-            location.reload(); // Reload nếu có lỗi để đồng bộ lại dữ liệu chuẩn
-        }
-    })
-    .catch(error => console.error('Lỗi đồng bộ:', error));
-}
     function updateRowTotal(row) {
         const qty = parseInt(row.querySelector('.qty-input').value);
         const price = parseInt(row.querySelector('.qty-input').dataset.price);
@@ -588,8 +636,7 @@
             total += parseInt(input.value) * parseInt(input.dataset.price);
         });
         document.querySelector('.total-amount-text').innerText = new Intl.NumberFormat('vi-VN').format(total) + ' VNĐ';
-        // ✅ Thêm dòng này — cập nhật hidden input để form submit đúng
-    document.querySelector('input[name="total_price"]').value = total;
+        document.querySelector('input[name="total_price"]').value = total;
     }
 
     function submitOrder() {

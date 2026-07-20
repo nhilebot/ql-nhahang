@@ -4,27 +4,25 @@
 
 @section('head')
 <style>
-    /* ===== CSS LUXURY THEME ===== */
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
 
     body { 
         padding-top: 70px; 
-        background-color: #F9F8F6; /* Màu nền trắng kem sang trọng */
+        background-color: #F9F8F6;
         font-family: 'Plus Jakarta Sans', sans-serif;
     } 
     
-    /* Header Banner */
     #reservation .featured.background_content {
         margin-top: -70px; 
         padding: 120px 0 80px 0;
-        background-image: linear-gradient(rgba(26, 34, 40, 0.7), rgba(26, 34, 40, 0.7)), url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop'); /* Hình nền mờ tối sang trọng */
+        background-image: linear-gradient(rgba(26, 34, 40, 0.7), rgba(26, 34, 40, 0.7)), url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop');
         background-size: cover; 
         background-position: center;
         background-attachment: fixed;
     }
     #reservation .featured h1 {
         font-family: 'Playfair Display', serif;
-        color: #fffefa; /* Màu vàng đồng (Gold) */
+        color: #fffefa;
         font-size: 48px;
         text-transform: uppercase;
         letter-spacing: 3px;
@@ -33,7 +31,6 @@
 
     .reservation-section { background-color: transparent; padding-bottom: 80px; margin-top: -50px; }
     
-    /* Form Container */
     .form-container-custom { 
         max-width: 900px; 
         margin: 0 auto; 
@@ -42,7 +39,7 @@
         border-radius: 12px; 
         box-shadow: 0 15px 40px rgba(0,0,0,0.08); 
         position: relative;
-        border-top: 5px solid #D4AF37; /* Viền vàng đồng phía trên */
+        border-top: 5px solid #D4AF37;
     }
 
     .form-title { 
@@ -53,7 +50,7 @@
         margin-bottom: 40px; 
         font-weight: 700;
         letter-spacing: 1px;
-        margin-top: 100px
+        margin-top: 100px;
     }
 
     .form-title::after {
@@ -65,7 +62,6 @@
         margin: 15px auto 0;
     }
 
-    /* Inputs */
     .label-custom { 
         font-weight: 600; 
         color: #4A5568; 
@@ -90,11 +86,11 @@
         background-color: #FFF;
     }
 
-    /* Table Selection Grid */
+    /* ===== TABLE SELECTION GRID - ĐÃ SỬA ===== */
     .table-selection-grid { 
         display: grid; 
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-        gap: 15px; 
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+        gap: 12px; 
         margin-bottom: 10px; 
     }
     .table-item input[type="radio"] { display: none; }
@@ -103,18 +99,33 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        height: 80px;
+        gap: 4px;
+        height: 70px;
         border: 1px solid #E2E8F0; 
         border-radius: 8px; 
         cursor: pointer; 
         transition: all 0.3s ease; 
-        font-weight: 600; 
-        color: #1A2228; 
         background: #FFF;
+        padding: 0 8px;
+        overflow: hidden;
     }
-    .table-item label small { margin-top: 5px; font-weight: 500; }
-    
-    /* Hover & Checked state for tables */
+    .table-item label .table-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #1A2228;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        text-align: center;
+    }
+    .table-item label small { 
+        font-size: 11px;
+        font-weight: 500;
+        white-space: nowrap;
+        margin-top: 0;
+    }
+
     .table-item label:hover { 
         border-color: #D4AF37; 
         transform: translateY(-3px); 
@@ -125,9 +136,9 @@
         background-color: #1A2228; 
         color: #D4AF37; 
     }
+    .table-item input[type="radio"]:checked + label .table-name { color: #D4AF37; }
     .table-item input[type="radio"]:checked + label small { color: #FFF !important; }
 
-    /* Disabled table state */
     input[disabled] + label {
         background-color: #F7FAFC !important;
         color: #A0AEC0 !important;
@@ -136,9 +147,9 @@
         transform: none !important;
         box-shadow: none !important;
     }
+    input[disabled] + label .table-name { color: #A0AEC0 !important; }
     input[disabled] + label small { color: #A0AEC0 !important; }
 
-    /* Buttons */
     .btn-food-select { 
         background: #FFF; 
         color: #1A2228; 
@@ -177,7 +188,6 @@
         box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
     }
 
-    /* Cart & Items */
     .cart-wrapper { 
         background: #FAFAFA; 
         padding: 25px; 
@@ -186,7 +196,6 @@
         margin-bottom: 25px; 
     }
     
-    /* Search & Modal */
     .search-input { 
         width: 100%; 
         padding: 12px 25px; 
@@ -206,7 +215,6 @@
     .btn-finish-modal { background: #D4AF37; border: none; color: #FFF; font-weight: 600; padding: 10px 25px; border-radius: 6px; }
     .btn-finish-modal:hover { background: #1A2228; color: #D4AF37; }
 
-    /* Category Divider in Modal */
     .category-divider { 
         background: transparent; 
         padding: 10px 0; 
@@ -259,12 +267,12 @@
                             <div class="col-md-6">
                                 <label class="label-custom">Ngày đặt bàn</label>
                                 <input 
-    type="date" 
-    name="reservation_date" 
-    class="form-control input-custom"
-    min="{{ date('Y-m-d') }}"
-    required
->
+                                    type="date" 
+                                    name="reservation_date" 
+                                    class="form-control input-custom"
+                                    min="{{ date('Y-m-d') }}"
+                                    required
+                                >
                             </div>
                             <div class="col-md-6">
                                 <label class="label-custom">Giờ đến</label>
@@ -284,36 +292,57 @@
                         </div>
 
                         <label class="label-custom">Lựa Chọn Vị Trí Bàn</label>
- <div class="table-selection-grid">
-    @foreach($tables as $table)
-        <div class="table-item" id="table-container-{{ $table->id }}">
-            {{-- Khóa bàn nếu status không phải là 'empty' --}}
-            <input type="radio" name="table_id" value="{{ $table->id }}" id="table{{ $table->id }}" 
-                   {{ $table->status !== 'empty' ? 'disabled' : '' }}>
-            
-            <label for="table{{ $table->id }}" id="label-{{ $table->id }}">
-                <strong>{{ $table->name }}</strong>
-                
-                <div id="status-text-{{ $table->id }}">
-                    @if($table->status === 'empty')
-                        <small style="color:#D4AF37;">(Sẵn sàng)</small>
-                    @elseif($table->status === 'reserved')
-                        <small style="color:#e74c3c;">(Đã đặt)</small>
-                    @elseif($table->status === 'cleaning')
-                        {{-- Hiển thị đếm ngược nếu đang dọn dẹp --}}
-                        <small style="color: #e74c3c;">
-                            🧹 Dọn dẹp (<span class="cleaning-timer" 
-                                              data-start="{{ $table->cleanup_started_at }}" 
-                                              data-id="{{ $table->id }}">60</span>s)
-                        </small>
-                    @else
-                        <small style="color:#3498db;">(Đang phục vụ)</small>
-                    @endif
-                </div>
-            </label>
-        </div>
-    @endforeach
-</div>
+
+                        <div class="table-selection-grid">
+                            @foreach($tables as $table)
+                                <div class="table-item" id="table-container-{{ $table->id }}">
+
+                                    <input 
+                                        type="radio"
+                                        name="table_id"
+                                        value="{{ $table->id }}"
+                                        id="table{{ $table->id }}"
+                                        {{ $table->status !== 'empty' ? 'disabled' : '' }}
+                                    >
+
+                                    <label for="table{{ $table->id }}" id="label-{{ $table->id }}">
+
+                                        <div class="table-name">
+                                            {{ $table->name }} - {{ $table->capacity }} Ghế
+                                        </div>
+
+                                        <div id="status-text-{{ $table->id }}">
+                                            @if($table->status === 'empty')
+                                                 <small style="color:#D4AF37;">(Sẵn sàng)</small>
+
+                                            @elseif($table->status === 'reserved')
+                                                <small class="status-reserved">
+                                                    <i class="fa fa-lock"></i>
+                                                    Đã đặt
+                                                </small>
+
+                                            @elseif($table->status === 'cleaning')
+                                                <small class="status-cleaning">
+                                                    🧹 Dọn dẹp (
+                                                    <span class="cleaning-timer"
+                                                          data-start="{{ $table->cleanup_started_at }}"
+                                                          data-id="{{ $table->id }}">
+                                                          60
+                                                    </span>s)
+                                                </small>
+
+                                            @else
+                                                <small class="status-serving">
+                                                    <i class="fa fa-cutlery"></i>
+                                                    Đang phục vụ
+                                                </small>
+                                            @endif
+                                        </div>
+
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
                         
                         <div class="mt-3 p-3 rounded" style="background: #FCFBF8; border-left: 4px solid #D4AF37;">
                             <small class="text-muted" style="font-size: 13px;">
@@ -375,7 +404,6 @@
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // TẤT CẢ LOGIC GIỮ NGUYÊN 100% NHƯ CŨ
         const menuItems = @json($menus ?? []);
         let cart = @json($cart ?? []);
         window.cart = cart;
@@ -445,7 +473,6 @@
                         const isOutOfStock = item.stock <= 0;
                         const imagePath = getImageUrl(item.image);
                         
-                        // Đã thay đổi nhẹ inline-CSS ở đây để thẻ món ăn khớp với phong cách Luxury
                         html += `
                             <div class="menu-card" style="border: none; border-radius: 12px; background: #FFF; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; transition: transform 0.3s;">
                                 <img src="${imagePath}" 
@@ -525,74 +552,64 @@
             });
         }
 
-     function updateQuantity(id, change) {
-    const index = cart.findIndex(i => i.id === id);
-    const item = menuItems.find(i => i.id === id);
-    
-    if (index === -1 || !item) return;
+        function updateQuantity(id, change) {
+            const index = cart.findIndex(i => i.id === id);
+            const item = menuItems.find(i => i.id === id);
+            
+            if (index === -1 || !item) return;
 
-    const newQty = cart[index].quantity + change;
+            const newQty = cart[index].quantity + change;
 
-    // 1. Xử lý khi số lượng giảm về 0
-    if (newQty <= 0) {
-        // Gửi AJAX xóa món khỏi DB trước khi xóa trong mảng JS (tùy chọn)
-        // Nếu không, khi load lại trang nó vẫn hiện 1 món
-        cart.splice(index, 1);
-    } 
-    // 2. Kiểm tra tồn kho
-    else if (newQty > item.stock) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Hết hàng!',
-            text: `Rất tiếc, nhà hàng hiện chỉ còn ${item.stock} phần cho món ${item.name}.`,
-            confirmButtonColor: '#1A2228',
-            iconColor: '#e74c3c'
-        });
-        return; 
-    } 
-    // 3. Giới hạn số lượng (ví dụ 50)
-    else if (newQty > 50) { 
-        Swal.fire({
-            icon: 'warning',
-            title: 'Số lượng quá lớn',
-            text: 'Với đơn hàng trên 50 phần, vui lòng liên hệ hotline!',
-            confirmButtonColor: '#D4AF37'
-        });
-        return;
-    }
-    else {
-        // CẬP NHẬT TRONG MẢNG JAVASCRIPT
-        cart[index].quantity = newQty;
-    }
+            if (newQty <= 0) {
+                cart.splice(index, 1);
+            } 
+            else if (newQty > item.stock) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Hết hàng!',
+                    text: `Rất tiếc, nhà hàng hiện chỉ còn ${item.stock} phần cho món ${item.name}.`,
+                    confirmButtonColor: '#1A2228',
+                    iconColor: '#e74c3c'
+                });
+                return; 
+            } 
+            else if (newQty > 50) { 
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Số lượng quá lớn',
+                    text: 'Với đơn hàng trên 50 phần, vui lòng liên hệ hotline!',
+                    confirmButtonColor: '#D4AF37'
+                });
+                return;
+            }
+            else {
+                cart[index].quantity = newQty;
+            }
 
-    // --- ĐÂY LÀ NƠI THỰC THI CẬP NHẬT ---
+            updateCartUI();
 
-    // 1. Cập nhật giao diện ngay lập tức
-    updateCartUI();
+            fetch("{{ route('reservation.addToCart') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ 
+                    food_id: id, 
+                    quantity: newQty,
+                    is_update: true
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("Đã đồng bộ số lượng mới vào DB:", data);
+            })
+            .catch(err => {
+                console.error("Lỗi đồng bộ:", err);
+            });    
+            updateCartUI();
+        }
 
-    // 2. GỬI AJAX ĐỒNG BỘ XUỐNG DATABASE NGAY LẬP TỨC
-    // Lưu ý: Route của bạn ở Controller là reservation.addToCart
-    fetch("{{ route('reservation.addToCart') }}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": "{{ csrf_token() }}"
-        },
-        body: JSON.stringify({ 
-            food_id: id, 
-            quantity: newQty, // Gửi số lượng mới (ví dụ: 3)
-            is_update: true  // Flag quan trọng để Controller gán thẳng số 3 vào DB
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log("Đã đồng bộ số lượng mới vào DB:", data);
-    })
-    .catch(err => {
-        console.error("Lỗi đồng bộ:", err);
-    });    
-    updateCartUI();
-}
         function updateCartUI() {
             const container = document.getElementById('cart-container');
             const list = document.getElementById('cart-list');
@@ -606,7 +623,6 @@
             cart.forEach(item => {
                 total += item.price * item.quantity;
                 
-                // Đã chỉnh sửa style hiển thị trong giỏ hàng để sang trọng hơn
                 cartHtml += `
                     <div class="cart-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid #EAEAEA;">
                         <div style="display:flex; align-items:center; gap:15px;">
@@ -645,77 +661,73 @@
         }
 
         $(document).ready(function () {
-    renderMenu();
-    updateCartUI();
+            renderMenu();
+            updateCartUI();
 
-    $('#foodMenuModal').modal({
-        backdrop: 'static',
-        keyboard: false,
-        show: false
-    });
-
-    $('#openFoodModalBtn').on('click', function(e) {
-        e.preventDefault();
-        $('#foodMenuModal').modal('show');
-    });
-
-    // ===== SUBMIT FORM ĐẶT BÀN =====
-    $('#reservation-form').on('submit', function(e) {
-        e.preventDefault();
-
-        // ===== KIỂM TRA NGÀY ĐẶT =====
-        const selectedDate = $('input[name="reservation_date"]').val();
-        const today = new Date().toISOString().split('T')[0];
-
-        if (selectedDate < today) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Ngày không hợp lệ',
-                text: 'Không thể đặt bàn ở ngày đã qua!',
-                confirmButtonColor: '#1A2228',
-                iconColor: '#e74c3c'
+            $('#foodMenuModal').modal({
+                backdrop: 'static',
+                keyboard: false,
+                show: false
             });
-            return;
-        }
 
-        // ===== KIỂM TRA CHỌN BÀN =====
-        if (!$('input[name="table_id"]:checked').val()) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Chưa Chọn Bàn',
-                text: 'Quý khách vui lòng chọn vị trí bàn mong muốn trước khi hoàn tất.',
-                confirmButtonColor: '#1A2228',
-                iconColor: '#D4AF37'
+            $('#openFoodModalBtn').on('click', function(e) {
+                e.preventDefault();
+                $('#foodMenuModal').modal('show');
             });
-            return;
-        }
 
-        const form = this;
+            $('#reservation-form').on('submit', function(e) {
+                e.preventDefault();
 
-        // ===== DEBUG =====
-        console.log('=== Form Submission Debug ===');
-        console.log('Form name:', $('input[name="full_name"]').val());
-        console.log('Form table_id:', $('input[name="table_id"]:checked').val());
-        console.log('Form date:', $('input[name="reservation_date"]').val());
-        console.log('Form time:', $('input[name="reservation_time"]').val());
-        console.log('Hidden inputs:', $('#hidden-inputs-container').html());
+                const selectedDate = $('input[name="reservation_date"]').val();
+                const today = new Date().toISOString().split('T')[0];
 
-        // ===== THÔNG BÁO THÀNH CÔNG =====
-        Swal.fire({
-            icon: 'success',
-            title: 'Đặt Bàn Thành Công!',
-            text: 'Yêu cầu của quý khách đã được ghi nhận. Nhà hàng đang chuẩn bị chu đáo nhất...',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            iconColor: '#D4AF37'
-        }).then(() => {
-            form.submit();
+                if (selectedDate < today) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ngày không hợp lệ',
+                        text: 'Không thể đặt bàn ở ngày đã qua!',
+                        confirmButtonColor: '#1A2228',
+                        iconColor: '#e74c3c'
+                    });
+                    return;
+                }
+
+                if (!$('input[name="table_id"]:checked').val()) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Chưa Chọn Bàn',
+                        text: 'Quý khách vui lòng chọn vị trí bàn mong muốn trước khi hoàn tất.',
+                        confirmButtonColor: '#1A2228',
+                        iconColor: '#D4AF37'
+                    });
+                    return;
+                }
+
+                const form = this;
+
+                console.log('=== Form Submission Debug ===');
+                console.log('Form name:', $('input[name="full_name"]').val());
+                console.log('Form table_id:', $('input[name="table_id"]:checked').val());
+                console.log('Form date:', $('input[name="reservation_date"]').val());
+                console.log('Form time:', $('input[name="reservation_time"]').val());
+                console.log('Hidden inputs:', $('#hidden-inputs-container').html());
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đặt Bàn Thành Công!',
+                    text: 'Yêu cầu của quý khách đã được ghi nhận. Nhà hàng đang chuẩn bị chu đáo nhất...',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    iconColor: '#D4AF37'
+                }).then(() => {
+                    form.submit();
+                });
+            });
         });
-    });
-});
     </script>
 @endsection
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const timers = document.querySelectorAll('.cleaning-timer');
@@ -725,9 +737,8 @@
             const startTimeStr = timer.getAttribute('data-start');
             if (!startTimeStr) return;
 
-            // Chuyển thời gian từ DB sang JavaScript Timestamp
             const startTime = new Date(startTimeStr).getTime();
-            const duration = 60 * 1000; // 60 giây (1 phút)
+            const duration = 60 * 1000;
 
             const updateCountdown = setInterval(function() {
                 const now = new Date().getTime();
@@ -735,19 +746,15 @@
                 const secondsLeft = Math.ceil((duration - distance) / 1000);
 
                 if (secondsLeft <= 0) {
-                    // Hết thời gian: Tự động mở khóa
                     clearInterval(updateCountdown);
                     
-                    // 1. Cập nhật chữ hiển thị
                     document.getElementById('status-text-' + tableId).innerHTML = '<small style="color:#D4AF37;">(Sẵn sàng)</small>';
                     
-                    // 2. Mở khóa nút bấm (Radio)
                     const input = document.getElementById('table' + tableId);
                     if (input) {
                         input.disabled = false;
                     }
 
-                    // 3. Reset lại style label (bỏ trạng thái mờ của disabled)
                     const label = document.getElementById('label-' + tableId);
                     if (label) {
                         label.style.cursor = 'pointer';

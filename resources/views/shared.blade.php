@@ -14,57 +14,8 @@
     <link href="{{ asset('css/font-awesome.min.css') }}" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Playball' rel='stylesheet' type='text/css'>
-    <style>
-        /* Dropdown menu hiển thị khi hover - không cần click */
-        .navbar-right .dropdown:hover .dropdown-menu,
-        .nav .dropdown:hover .dropdown-menu {
-            display: block !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
-        
-        /* Smooth transition */
-        .dropdown-menu {
-            transition: all 0.2s ease-in-out;
-        }
-        
-        /* Center menu alignment */
-        .navbar-center-custom {
-            justify-content: center;
-            align-items: center;
-        }
-        
-        /* Navbar items alignment */
-        .navbar-right li {
-            display: flex;
-            align-items: flex-start;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: auto;
-        }
-        
-        .navbar-center-custom li {
-            margin: 0 !important;
-            padding: 0 !important;
-            height: auto;
-        }
-        
-        /* Icon margins consistent */
-        .navbar-right i {
-            margin-right: 8px;
-        }
-        
-        /* Navbar fix height */
-        .navbar-default {
-            min-height: auto;
-            padding: 0 !important;
-        }
-        
-        /* Navbar container padding */
-        .navbar-collapse {
-            padding: 0 !important;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+ 
     </style>
     @yield('head')
 </head>
@@ -121,20 +72,46 @@
             </li>
         @endguest
         @auth
-            <li style="margin: 0; padding: 0;">
+            <!-- <li style="margin: 0; padding: 0;">
                 <a class="color_animation" href="{{ url('/order-history') }}" style="white-space: nowrap; padding: 10px; display: flex; align-items: center;">
                     <i class="fa fa-file-text"></i> ĐƠN HÀNG
                 </a>
-            </li>
-            <li class="dropdown" style="margin: 0; padding: 0;">
-                <a href="#" class="dropdown-toggle color_animation" data-toggle="dropdown" style="white-space: nowrap; padding: 10px; display: flex; align-items: center;">
-                    <i class="fa fa-user"></i> {{ Auth::user()->name }} <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-right">
-                    <li><a href="{{ url('/profile') }}">Hồ sơ</a></li>
-                    <li><a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" style="color: red;">Đăng xuất</a></li>
-                </ul>
-            </li>
+            </li> -->
+          <li class="dropdown" style="margin: 0; padding: 0;">
+    <a href="#" class="dropdown-toggle color_animation" data-toggle="dropdown"
+       style="white-space: nowrap; padding: 10px; display: flex; align-items: center;">
+        <i class="fa fa-user"></i>
+        {{ Auth::user()->name }}
+        <span class="caret"></span>
+    </a>
+
+  <ul class="dropdown-menu dropdown-menu-right">
+
+    <li>
+        <a href="{{ url('/profile') }}">
+            <i class="fa-solid fa-user"></i>
+            Hồ sơ
+        </a>
+    </li>
+
+    <li>
+        <a href="{{ url('/order-history') }}">
+            <i class="fa-solid fa-file-lines"></i>
+            Đơn hàng
+        </a>
+    </li>
+
+    <li>
+        <a href="#"
+           onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+           style="color: red;">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Đăng xuất
+        </a>
+    </li>
+
+</ul>
+</li>
         @endauth
     </ul>
 </div>

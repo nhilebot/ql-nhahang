@@ -241,7 +241,27 @@
                 <div class="row">
                     <div class="col-md-6">
                         <p><strong><i class="fa-solid fa-user-tie"></i> Khách hàng:</strong> {{ $order->name }}</p>
-                        <p><strong><i class="fa-solid fa-chair"></i> Vị trí:</strong> <span style="background: #1A2228; color: #D4AF37; padding: 2px 10px; border-radius: 12px; font-size: 12px;">Bàn: {{ $order->table_number }}</span></p>
+                        <p>
+    <strong>
+        <i class="fa-solid fa-chair"></i> Vị trí:
+    </strong>
+
+    <span style="
+        background: #1A2228;
+        color: #D4AF37;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+    ">
+        {{ $order->table->name ?? 'Chưa có bàn' }}
+        -
+        {{ $order->table->capacity ?? 0 }} Ghế
+    </span>
+</p>
+                   <p class="mb-0">
+                <strong><i class="fa-solid fa-note-sticky"></i> Ghi chú:</strong> 
+                <span style="color: #D4AF37; font-style: italic;">{{ $order->notes }}</span>
+            </p>
                     </div>
                     <div class="col-md-6">
                         <p><strong><i class="fa-solid fa-wallet"></i> Thanh toán:</strong> 

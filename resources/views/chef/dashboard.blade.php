@@ -88,6 +88,12 @@
                     {{ $isCooking ? '🔥 Đang nấu' : '🆕 Đơn mới' }}
                 </span>
             </div>
+             @if(!empty($reservation->notes))
+        <div style="margin-top: 8px; background: rgba(0,0,0,0.2); border-radius: 6px; padding: 6px 10px; font-size: 0.82rem; line-height: 1.4;">
+            <span style="opacity: 0.85;">📝 Ghi chú:</span>
+            <span style="font-weight: 700;">{{ $reservation->notes }}</span>
+        </div>
+    @endif
         </div>
 
         {{-- DANH SÁCH MÓN --}}

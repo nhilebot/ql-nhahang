@@ -1,6 +1,6 @@
 @extends('shared')
 
-@section('title', 'Trang chủ | Tam Nhi Quán')
+@section('title', 'Trang chủ')
 
 @section('content')
    <div id="top" class="starter_container">

@@ -68,7 +68,7 @@
                         <tr>
                             <td>
                                 <span class="badge bg-info text-white fs-6">
-                                    {{ $res->table->name ?? 'Bàn ' . $res->table_id }}
+                                    <div class="table-name"> {{ $res->table->name }} - {{ $res->table->capacity }} Ghế </div>
                                 </span>
                             </td>
 

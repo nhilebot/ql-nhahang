@@ -35,7 +35,7 @@ protected $casts = [
 // Quan hệ với bảng Tables
 public function table()
 {
-    return $this->belongsTo(Table::class, 'table_number', 'table_number');
+    return $this->belongsTo(Table::class, 'table_number', 'id');
 }
 
 // Giúp Blade hiển thị màu sắc dựa trên trạng thái

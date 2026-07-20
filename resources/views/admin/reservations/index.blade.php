@@ -42,7 +42,9 @@
                                 <div class="small text-muted">{{ $res->phone }}</div>
                             </td>
                             <td>
-                                <span class="badge border text-dark">Bàn số: {{ $res->table_id }}</span>
+                                 <span class="badge bg-info text-white fs-6">
+                                    <div class="table-name"> {{ $res->table->name }} - {{ $res->table->capacity }} Ghế </div>
+                                </span>
                                 <div class="small mt-1 text-primary fw-bold">{{ $res->reservation_time }}</div>
                                 <a href="{{ route('staff.reservations.edit_items', $res->id) }}" class="btn btn-outline-primary btn-sm mt-2">
                                     <i class="fas fa-file-invoice"></i> Chỉnh sửa đơn

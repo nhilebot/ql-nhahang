@@ -690,3 +690,175 @@ body {
         background-color: #fff;
     }
 }
+/* =======================================================
+   NAVBAR & DROPDOWN LUXURY
+======================================================= */
+
+.navbar-default {
+    min-height: auto;
+    padding: 0 !important;
+}
+
+.navbar-collapse {
+    padding: 0 !important;
+}
+
+.navbar-center-custom {
+    justify-content: center;
+    align-items: center;
+}
+
+.navbar-center-custom li,
+.navbar-right li {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto;
+}
+
+.navbar-right li {
+    /* display: flex; */
+    align-items: center;
+}
+
+.navbar-right i {
+    margin-right: 8px;
+}
+
+/* ===== FIX DROPDOWN ===== */
+
+.dropdown {
+    position: relative;
+}
+
+/* ===== Dropdown Hover ===== */
+
+.navbar-right .dropdown:hover .dropdown-menu,
+.nav .dropdown:hover .dropdown-menu {
+    display: block !important;
+}
+
+/* ===== Dropdown ===== */
+
+.dropdown-menu {
+    position: absolute;
+
+    top: 100%;
+    right: 0 !important;
+    left: auto !important;
+
+    transform: none;
+
+    display: none;
+
+    z-index: 9999;
+
+    border: none !important;
+    border-radius: 14px !important;
+
+    min-width: 230px;
+
+    padding: 10px 0 !important;
+    margin-top: 0 !important;
+
+    background: #fff;
+
+    overflow: hidden;
+
+    transition: all 0.25s ease;
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,0.08),
+        0 2px 10px rgba(0,0,0,0.04);
+
+    animation: dropdownFade 0.25s ease;
+}
+
+/* ===== Dropdown Item ===== */
+
+.dropdown-menu li a {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 12px;
+
+    padding: 12px 22px !important;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #1A2228 !important;
+
+    transition: all 0.25s ease;
+}
+
+/* ===== Hover ===== */
+
+.dropdown-menu li a:hover {
+    background: #1A2228 !important;
+    color: #D4AF37 !important;
+
+    padding-left: 22px !important;
+}
+
+/* ===== Icon ===== */
+
+.dropdown-menu li a i {
+    width: 20px;
+    min-width: 20px;
+
+    text-align: center;
+
+    font-size: 15px;
+
+    margin-right: 0 !important;
+}
+
+/* ===== Logout ===== */
+
+.dropdown-menu li:last-child a {
+    color: #dc3545 !important;
+}
+
+.dropdown-menu li:last-child a:hover {
+    background: #dc3545 !important;
+    color: #fff !important;
+}
+
+/* ===== User Hover ===== */
+
+.dropdown-toggle {
+    transition: all 0.25s ease;
+}
+
+.dropdown-toggle:hover {
+    color: #D4AF37 !important;
+}
+
+/* ===== Badge ===== */
+
+.badge {
+    background: #dc3545 !important;
+    color: #fff !important;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    border-radius: 50px;
+
+    padding: 4px 7px;
+}
+
+/* ===== Animation ===== */
+
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
