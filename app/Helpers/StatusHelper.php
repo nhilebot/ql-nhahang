@@ -17,6 +17,14 @@ class StatusHelper
             'bg_class' => 'status-pending',
             'badge_class' => 'badge-warning',
         ],
+        'pending_payment' => [
+    'text' => 'Chờ thanh toán',
+    'text_full' => 'Đơn hàng đang chờ thanh toán',
+    'emoji' => '💰',
+    'color' => 'warning',
+    'bg_class' => 'status-pending_payment',
+    'badge_class' => 'badge-warning',
+],
         'confirmed' => [
             'text' => 'Đã xác nhận',
             'text_full' => 'Đơn hàng đã được xác nhận',
@@ -153,19 +161,29 @@ class StatusHelper
      * @return string|array
      */
     public static function translate($status, $format = 'text')
-    {
-        $status = strtolower(trim($status ?? ''));
-        
-        if (!isset(self::STATUS_TRANSLATIONS[$status])) {
-            return ucfirst($status);
-        }
-
+{
+    $status = strtolower(trim($status ?? ''));
+    
+    if (!isset(self::STATUS_TRANSLATIONS[$status])) {
         if ($format === 'all') {
-            return self::STATUS_TRANSLATIONS[$status];
+            return [
+                'text' => ucfirst($status),
+                'text_full' => ucfirst($status),
+                'emoji' => '❓',
+                'color' => 'secondary',
+                'bg_class' => 'status-default',
+                'badge_class' => 'badge-secondary',
+            ];
         }
-
-        return self::STATUS_TRANSLATIONS[$status][$format] ?? ucfirst($status);
+        return ucfirst($status);
     }
+
+    if ($format === 'all') {
+        return self::STATUS_TRANSLATIONS[$status];
+    }
+
+    return self::STATUS_TRANSLATIONS[$status][$format] ?? ucfirst($status);
+}
 
     /**
      * Lấy text và emoji của trạng thái
